@@ -827,7 +827,7 @@ expand_builtin_setjmp_setup (rtx buf_addr, rtx receiver_label)
 {
   machine_mode sa_mode = STACK_SAVEAREA_MODE (SAVE_NONLOCAL);
   rtx stack_save;
-  rtx mem;
+  rtx mem, reg_ssp;
 
   if (setjmp_alias_set == -1)
     setjmp_alias_set = new_alias_set ();
@@ -856,6 +856,21 @@ expand_builtin_setjmp_setup (rtx buf_addr, rtx receiver_label)
 					   2 * GET_MODE_SIZE (Pmode)));
   set_mem_alias_set (stack_save, setjmp_alias_set);
   emit_stack_save (SAVE_NONLOCAL, &stack_save);
+
+  /* If either CET flag is set or a special flag to process shadow
+     stack store the shadow stack pointer as a forth element.  */
+  if (TARGET_CET || flag_cet_shadow_stack)
+    {
+      mem = gen_rtx_MEM (Pmode, plus_constant (Pmode, buf_addr,
+					   3 * GET_MODE_SIZE (Pmode))),
+      set_mem_alias_set (mem, setjmp_alias_set);
+      reg_ssp = gen_reg_rtx (Pmode);
+      emit_insn (gen_rtx_SET (reg_ssp, const0_rtx));
+      emit_insn ((Pmode == SImode)
+		 ? gen_rdsspsi (reg_ssp)
+		 : gen_rdsspdi (reg_ssp));
+      emit_move_insn (mem, reg_ssp);
+    }
 
   /* If there is further processing to do, do it.  */
   if (targetm.have_builtin_setjmp_setup ())
@@ -956,6 +971,7 @@ expand_builtin_longjmp (rtx buf_addr, rtx value)
 {
   rtx fp, lab, stack;
   rtx_insn *insn, *last;
+  rtx jump, label, reg_adj, reg_ssp, reg_minus, mem_buf, tmp, clob;
   machine_mode sa_mode = STACK_SAVEAREA_MODE (SAVE_NONLOCAL);
 
   /* DRAP is needed for stack realign if longjmp is expanded to current
@@ -973,6 +989,54 @@ expand_builtin_longjmp (rtx buf_addr, rtx value)
   /* We require that the user must pass a second argument of 1, because
      that is what builtin_setjmp will return.  */
   gcc_assert (value == const1_rtx);
+
+  /* If either CET flag is set or a special flag to process shadow
+     stack adjust the shadow stack pointer (ssp).  */
+  if (TARGET_CET || flag_cet_shadow_stack)
+    {
+       /* Get current shadow stack pointer.  The code below will check if
+	   CET is enabled.  If it's not enabled RDSSP instruction is a NOP.  */
+       reg_ssp = gen_reg_rtx (Pmode);
+       emit_insn (gen_rtx_SET (reg_ssp, const0_rtx));
+       emit_insn ((Pmode == SImode)
+		  ? gen_rdsspsi (reg_ssp)
+		  : gen_rdsspdi (reg_ssp));
+
+       mem_buf = gen_rtx_MEM (Pmode, plus_constant (Pmode, buf_addr,
+					   3 * GET_MODE_SIZE (Pmode))),
+       set_mem_alias_set (mem_buf, setjmp_alias_set);
+
+       /* Compare through substraction the saved and the current ssp to decide
+	   if ssp has to be adjusted.  */
+       reg_minus = gen_reg_rtx (Pmode);
+       tmp = gen_rtx_SET (reg_minus, gen_rtx_MINUS (Pmode, reg_ssp, mem_buf));
+       clob = gen_rtx_CLOBBER (VOIDmode, gen_rtx_REG (CCmode, FLAGS_REG));
+       tmp = gen_rtx_PARALLEL (VOIDmode, gen_rtvec (2, tmp, clob));
+       emit_insn (tmp);
+
+       label = gen_label_rtx ();
+       tmp = gen_rtx_REG (CCmode, FLAGS_REG);
+       tmp = gen_rtx_EQ (VOIDmode, tmp, const0_rtx);
+       tmp = gen_rtx_IF_THEN_ELSE (VOIDmode, tmp,
+				   gen_rtx_LABEL_REF (VOIDmode, label),
+				   pc_rtx);
+       jump = emit_jump_insn (gen_rtx_SET (pc_rtx, tmp));
+       JUMP_LABEL (jump) = label;
+
+       /* Adjust the ssp if needed.  */
+       reg_adj = gen_reg_rtx (Pmode);
+//     tmp = gen_rtx_SET (reg_adj, gen_rtx_DIV (Pmode, reg_minus, GEN_INT (UNITS_PER_WORD)));
+       tmp = gen_rtx_SET (reg_adj, gen_rtx_LSHIFTRT (Pmode, negate_rtx (Pmode, reg_minus), GEN_INT (3)));
+       clob = gen_rtx_CLOBBER (VOIDmode, gen_rtx_REG (CCmode, FLAGS_REG));
+       tmp = gen_rtx_PARALLEL (VOIDmode, gen_rtvec (2, tmp, clob));
+       emit_insn (tmp);
+       emit_insn ((Pmode == SImode)
+		  ? gen_incsspsi (reg_adj)
+		  : gen_incsspdi (reg_adj));
+
+       emit_label (label);
+       LABEL_NUSES (label) = 1;
+    }
 
   last = get_last_insn ();
   if (targetm.have_builtin_longjmp ())

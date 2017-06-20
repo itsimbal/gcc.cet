@@ -497,6 +497,7 @@ along with GCC; see the file COPYING3.  If not see
 	  NEXT_PASS (pass_delay_slots);
 	  NEXT_PASS (pass_split_for_shorten_branches);
 	  NEXT_PASS (pass_convert_to_eh_region_ranges);
+	  NEXT_PASS (pass_handle_cet);
 	  NEXT_PASS (pass_shorten_branches);
 	  NEXT_PASS (pass_set_nothrow_function_flags);
 	  NEXT_PASS (pass_dwarf2_frame);

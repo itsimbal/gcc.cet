@@ -4787,6 +4787,148 @@ make_pass_clean_state (gcc::context *ctxt)
   return new pass_clean_state (ctxt);
 }
 
+/*  Inserting ENDBRANCH instructions.  */
+
+static unsigned int
+rest_of_handle_cet (void)
+{
+  timevar_push (TV_CET);
+
+  rtx cet_eb;
+  rtx_insn *insn;
+  basic_block bb;
+
+  /* Currently emit EB if it's a noni-tracking function, i.e. 'notrack'
+     is absent among function attributes.  Later an optimization will be
+     introduced to make analysis if an address of a static function is
+     taken.  Such function will get a notrack attribute.  This will allow
+     to reduce the number of EB.  */
+
+  if (!lookup_attribute ("notrack", DECL_ATTRIBUTES (cfun->decl)))
+    {
+      cet_eb = gen_nop_endbr ();
+
+      bb = ENTRY_BLOCK_PTR_FOR_FN (cfun)->next_bb;
+      insn = BB_HEAD (bb);
+      emit_insn_before (cet_eb, insn);
+    }
+
+  bb = 0;
+  FOR_EACH_BB_FN (bb, cfun)
+    {
+      for (insn = BB_HEAD (bb); insn != NEXT_INSN (BB_END (bb));
+	   insn = NEXT_INSN (insn))
+	{
+	  if (INSN_P (insn) && GET_CODE (insn) == CALL_INSN)
+	    {
+	      rtx_insn *next_insn = insn;
+
+	      while ((next_insn != BB_END (bb))
+		      && (DEBUG_INSN_P (NEXT_INSN (next_insn))
+			  || NOTE_P (NEXT_INSN (next_insn))
+			  || BARRIER_P (NEXT_INSN (next_insn))))
+		next_insn = NEXT_INSN (next_insn);
+
+	      /* Generate ENDBRANCH after CALL, which can return more than
+		 twice, setjmp-like functions.  */
+	      if (find_reg_note (insn, REG_SETJMP, NULL) != NULL)
+		{
+		  cet_eb = gen_nop_endbr ();
+		  emit_insn_after (cet_eb, next_insn);
+		}
+	      continue;
+	    }
+
+	  if (INSN_P (insn) && JUMP_P (insn) && flag_cet_switch)
+	    {
+	      rtx target = JUMP_LABEL (insn);
+	      if (target == NULL_RTX || ANY_RETURN_P (target))
+		continue;
+
+	      /* Check the jump is a switch table.  */
+	      rtx_insn *label = as_a<rtx_insn *> (target);
+	      rtx_insn *table = next_insn (label);
+	      if (table == NULL_RTX || !JUMP_TABLE_DATA_P (table))
+		continue;
+
+	      /* For the indirect jump find out all places it jumps and insert
+		 ENDBRANCH there.  It should be done under a special flag to
+		 control ENDBRANCH generation for switch stmts.  */
+	      edge_iterator ei;
+	      edge e;
+	      basic_block dest_blk;
+
+	      FOR_EACH_EDGE (e, ei, bb->succs)
+		{
+		  rtx_insn *insn;
+
+		  dest_blk = e->dest;
+		  insn = BB_HEAD (dest_blk);
+		  gcc_assert (LABEL_P (insn));
+		  cet_eb = gen_nop_endbr ();
+		  emit_insn_after (cet_eb, insn);
+		}
+	      continue;
+	    }
+
+	  if ((LABEL_P (insn) && LABEL_PRESERVE_P (insn))
+	      || (NOTE_P (insn)
+		  && NOTE_KIND (insn) == NOTE_INSN_DELETED_LABEL))
+	    {
+	      cet_eb = gen_nop_endbr ();
+	      emit_insn_after (cet_eb, insn);
+	      continue;
+	    }
+	}
+    }
+
+  timevar_pop (TV_CET);
+  return 0;
+}
+
+namespace {
+
+const pass_data pass_data_handle_cet =
+{
+  RTL_PASS, /* type.  */
+  "cet", /* name.  */
+  OPTGROUP_NONE, /* optinfo_flags.  */
+  TV_CET, /* tv_id.  */
+  0, /* properties_required.  */
+  0, /* properties_provided.  */
+  0, /* properties_destroyed.  */
+  0, /* todo_flags_start.  */
+  0, /* todo_flags_finish.  */
+};
+
+class pass_handle_cet : public rtl_opt_pass
+{
+public:
+  pass_handle_cet (gcc::context *ctxt)
+    : rtl_opt_pass (pass_data_handle_cet, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *)
+    {
+      return (TARGET_CET || flag_cet_indbranch_tracking);
+    }
+
+  virtual unsigned int execute (function *)
+    {
+      return rest_of_handle_cet ();
+    }
+
+}; // class pass_handle_cet
+
+} // anon namespace
+
+rtl_opt_pass *
+make_pass_handle_cet (gcc::context *ctxt)
+{
+  return new pass_handle_cet (ctxt);
+}
+
 /* Return true if INSN is a call to the current function.  */
 
 static bool

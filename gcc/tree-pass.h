@@ -614,6 +614,7 @@ extern rtl_opt_pass *make_pass_shorten_branches (gcc::context *ctxt);
 extern rtl_opt_pass *make_pass_set_nothrow_function_flags (gcc::context *ctxt);
 extern rtl_opt_pass *make_pass_dwarf2_frame (gcc::context *ctxt);
 extern rtl_opt_pass *make_pass_final (gcc::context *ctxt);
+extern rtl_opt_pass *make_pass_handle_cet (gcc::context *ctxt);
 extern rtl_opt_pass *make_pass_rtl_seqabstr (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_release_ssa_names (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_early_inline (gcc::context *ctxt);

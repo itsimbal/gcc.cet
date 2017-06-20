@@ -96,6 +96,9 @@ struct die_struct;
 /* Nonzero if this is a cold function.  */
 #define ECF_COLD		  (1 << 15)
 
+/* Nonzero if this is a notrack call.  */
+#define ECF_NOTRACK		  (1 << 16)
+
 /* Call argument flags.  */
 /* Nonzero if the argument is not dereferenced recursively, thus only
    directly reachable memory is read or written.  */

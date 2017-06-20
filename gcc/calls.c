@@ -480,6 +480,9 @@ emit_call_1 (rtx funexp, tree fntree ATTRIBUTE_UNUSED, tree fndecl ATTRIBUTE_UNU
       cfun->calls_setjmp = 1;
     }
 
+  if (ecf_flags & ECF_NOTRACK)
+    add_reg_note (call_insn, REG_CALL_NOTRACK, const0_rtx);
+
   SIBLING_CALL_P (call_insn) = ((ecf_flags & ECF_SIBCALL) != 0);
 
   /* Restore this now, so that we do defer pops for this call's args
@@ -823,6 +826,9 @@ flags_from_decl_or_type (const_tree exp)
 	flags |= ECF_LEAF;
       if (lookup_attribute ("cold", DECL_ATTRIBUTES (exp)))
 	flags |= ECF_COLD;
+      if (lookup_attribute ("notrack", DECL_ATTRIBUTES (exp)))
+	flags |= ECF_NOTRACK;
+
 
       if (TREE_NOTHROW (exp))
 	flags |= ECF_NOTHROW;
@@ -3054,6 +3060,30 @@ expand_call (tree exp, rtx target, int ignore)
     }
   else
     {
+      if (TREE_CODE (addr) == SSA_NAME)
+	{
+	  tree vardecl = SSA_NAME_VAR (addr);
+
+	  if (vardecl == NULL_TREE)
+	    {
+	      gimple *stmt = SSA_NAME_DEF_STMT (addr);
+	      /* Expecting the stmt is a GIMPLE assign and the stmt is a
+		 simple assignment like <tmp> = <var>.  The <var> should
+		 be a function pointer.  */
+	      if (gimple_code (stmt) == GIMPLE_ASSIGN)
+		{
+		  vardecl = gimple_assign_rhs1 (stmt);
+		}
+	    }
+	  /* Check that vardecl is a variable with a function pointer type
+	     and get the flags from the decl.  */
+	  if (vardecl != NULL_TREE && VAR_P (vardecl)
+	      && FUNCTION_POINTER_TYPE_P (TREE_TYPE (vardecl)))
+	    {
+	      if (lookup_attribute ("notrack", DECL_ATTRIBUTES (vardecl)))
+		flags |= ECF_NOTRACK;
+	    }
+	}
       fntype = TREE_TYPE (TREE_TYPE (addr));
       flags |= flags_from_decl_or_type (fntype);
       if (CALL_EXPR_BY_DESCRIPTOR (exp))
