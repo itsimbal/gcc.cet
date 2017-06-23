@@ -2373,6 +2373,12 @@ DEFHOOK
  default_chkp_bound_mode)
 
 DEFHOOK
+(instrument_control_flow_mode,
+"Return if a Control Flow instrumentation is enabled.",
+ bool, (void),
+ default_instrument_control_flow_mode)
+
+DEFHOOK
 (chkp_make_bounds_constant,
  "Return constant used to statically initialize constant bounds\n\
 with specified lower bound @var{lb} and upper bounds @var{ub}.",

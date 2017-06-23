@@ -42362,7 +42362,7 @@ x86_output_mi_thunk (FILE *file, tree, HOST_WIDE_INT delta,
   emit_note (NOTE_INSN_PROLOGUE_END);
 
   /* CET is enabled, insert EB instruction.  */
-  if (TARGET_CET || flag_cet_indbranch_tracking)
+  if (flag_instrument_control_flow || flag_cet_indbranch_tracking)
     {
       emit_insn (gen_nop_endbr ());
     }
@@ -50096,7 +50096,7 @@ ix86_bnd_prefixed_insn_p (rtx insn)
 bool
 ix86_notrack_prefixed_insn_p (rtx insn)
 {
-  if (!insn || !(TARGET_CET || flag_cet_indbranch_tracking))
+  if (!insn || !(flag_instrument_control_flow || flag_cet_indbranch_tracking))
     return 0;
 
   if (CALL_P (insn))
@@ -51950,6 +51950,22 @@ ix86_mpx_bound_mode ()
   return BNDmode;
 }
 
+/* Check if Control-Flow Enforcement Technoligy is enabled.  */
+
+static bool
+ix86_instrument_control_flow_mode ()
+{
+  /* Do not support control flow instrumentation if CET is not enabled.  */
+  if (!TARGET_CET)
+    {
+      if (flag_instrument_control_flow)
+	warning_at (UNKNOWN_LOCATION, 0, "Control Flow instrumentation requires CET support on"
+		 " this target. Use -mcet options to enable CET.");
+      return 0;
+    }
+
+  return 1;
+}
 /*  Return constant used to statically initialize constant bounds.
 
     This function is used to create special bound values.  For now
@@ -52963,6 +52979,9 @@ ix86_run_selftests (void)
 
 #undef TARGET_CHKP_BOUND_MODE
 #define TARGET_CHKP_BOUND_MODE ix86_mpx_bound_mode
+
+#undef TARGET_INSTRUMENT_CONTROL_FLOW_MODE
+#define TARGET_INSTRUMENT_CONTROL_FLOW_MODE ix86_instrument_control_flow_mode
 
 #undef TARGET_BUILTIN_CHKP_FUNCTION
 #define TARGET_BUILTIN_CHKP_FUNCTION ix86_builtin_mpx_function

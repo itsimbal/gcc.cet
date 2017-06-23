@@ -1283,6 +1283,17 @@ process_options (void)
 	   "-floop-parallelize-all)");
 #endif
 
+  if (flag_instrument_control_flow)
+    {
+      if (!targetm.instrument_control_flow_mode ())
+	{
+	  warning_at (UNKNOWN_LOCATION, 0,
+		    "%<-finstrument-control-flow%> is not supported for this "
+		    "target");
+	  flag_instrument_control_flow = 0;
+	}
+    }
+
   if (flag_check_pointer_bounds)
     {
       if (targetm.chkp_bound_mode () == VOIDmode)

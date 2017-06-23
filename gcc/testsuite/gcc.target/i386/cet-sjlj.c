@@ -1,5 +1,5 @@
 /* { dg-do compile } */
-/* { dg-options "-O -mcet" } */
+/* { dg-options "-O -finstrument-control-flow -mcet" } */
 /* { dg-final { scan-assembler-times "endbr32|endbr64" 4 } } */
 /* { dg-final { scan-assembler-times "rdssp\[dq]" 2 } } */
 /* { dg-final { scan-assembler-times "incssp\[dq]" 1 } } */

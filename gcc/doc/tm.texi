@@ -11359,6 +11359,10 @@ bounds variable @var{var} with bounds @var{lb} and @var{ub}.  Return
 the number of generated statements.
 @end deftypefn
 
+@deftypefn {Target Hook} bool TARGET_INSTRUMENT_CONTROL_FLOW_MODE (void)
+Return if a Control Flow instrumentation is enabled.
+@end deftypefn
+
 @deftypefn {Target Hook} tree TARGET_RESOLVE_OVERLOADED_BUILTIN (unsigned int @var{loc}, tree @var{fndecl}, void *@var{arglist})
 Select a replacement for a machine specific built-in function that
 was set up by @samp{TARGET_INIT_BUILTINS}.  This is done

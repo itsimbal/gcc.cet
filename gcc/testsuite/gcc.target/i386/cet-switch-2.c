@@ -1,6 +1,6 @@
 /* Verify that CET works.  */
 /* { dg-do compile } */
-/* { dg-options "-O -mcet -mcet-switch" } */
+/* { dg-options "-O -finstrument-control-flow -mcet -mcet-switch" } */
 /* { dg-final { scan-assembler-times "endbr32|endbr64" 12 } } */
 /* { dg-final { scan-assembler-times "\[ \t]+jmp\[ \t]+\[*].L\[0-9]+" 1 } } */
 
