@@ -4798,11 +4798,11 @@ rest_of_handle_cet (void)
   rtx_insn *insn;
   basic_block bb;
 
-  /* Currently emit EB if it's a noni-tracking function, i.e. 'notrack'
-     is absent among function attributes.  Later an optimization will be
+  /* Currently emit EB if it's a tracking function, i.e. 'notrack' is
+     absent among function attributes.  Later an optimization will be
      introduced to make analysis if an address of a static function is
-     taken.  Such function will get a notrack attribute.  This will allow
-     to reduce the number of EB.  */
+     taken.  A static function whose address is not taken will get a
+     notrack attribute.  This will allow to reduce the number of EB.  */
 
   if (!lookup_attribute ("notrack", DECL_ATTRIBUTES (cfun->decl)))
     {
@@ -4874,6 +4874,7 @@ rest_of_handle_cet (void)
 	  if ((LABEL_P (insn) && LABEL_PRESERVE_P (insn))
 	      || (NOTE_P (insn)
 		  && NOTE_KIND (insn) == NOTE_INSN_DELETED_LABEL))
+/* TODO. Check /s bit also.  */
 	    {
 	      cet_eb = gen_nop_endbr ();
 	      emit_insn_after (cet_eb, insn);

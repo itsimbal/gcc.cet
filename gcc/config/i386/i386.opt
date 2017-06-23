@@ -946,4 +946,4 @@ Specifically turn on CET instrumentation with ENDBR and NOTRACK instructions.
 
 mcet-shadow-stack
 Target Report Var(flag_cet_shadow_stack) Init(0)
-Specifically turn on CET codegeneration for shadow stack support.
+Specifically turn on CET code generation for shadow stack support.
