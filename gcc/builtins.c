@@ -827,7 +827,7 @@ expand_builtin_setjmp_setup (rtx buf_addr, rtx receiver_label)
 {
   machine_mode sa_mode = STACK_SAVEAREA_MODE (SAVE_NONLOCAL);
   rtx stack_save;
-  rtx mem, reg_ssp;
+  rtx mem;
 
   if (setjmp_alias_set == -1)
     setjmp_alias_set = new_alias_set ();
@@ -856,21 +856,6 @@ expand_builtin_setjmp_setup (rtx buf_addr, rtx receiver_label)
 					   2 * GET_MODE_SIZE (Pmode)));
   set_mem_alias_set (stack_save, setjmp_alias_set);
   emit_stack_save (SAVE_NONLOCAL, &stack_save);
-
-  /* If either CET flag is set or a special flag to process shadow
-     stack store the shadow stack pointer as a forth element.  */
-  if (TARGET_CET || flag_cet_shadow_stack)
-    {
-      mem = gen_rtx_MEM (Pmode, plus_constant (Pmode, buf_addr,
-					   3 * GET_MODE_SIZE (Pmode))),
-      set_mem_alias_set (mem, setjmp_alias_set);
-      reg_ssp = gen_reg_rtx (Pmode);
-      emit_insn (gen_rtx_SET (reg_ssp, const0_rtx));
-      emit_insn ((Pmode == SImode)
-		 ? gen_rdsspsi (reg_ssp)
-		 : gen_rdsspdi (reg_ssp));
-      emit_move_insn (mem, reg_ssp);
-    }
 
   /* If there is further processing to do, do it.  */
   if (targetm.have_builtin_setjmp_setup ())
