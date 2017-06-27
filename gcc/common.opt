@@ -1597,7 +1597,8 @@ Inline __atomic operations when a lock free instruction sequence is available.
 
 finstrument-control-flow
 Common Report Var(flag_instrument_control_flow)
-Instrument function to check control transfer with jumps and calls are valid.
+Instrument function with checks to verify control transfers using jumps and calls
+instructions have valid target.
 
 finstrument-functions
 Common Report Var(flag_instrument_function_entry_exit)

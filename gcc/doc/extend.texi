@@ -6435,7 +6435,8 @@ attributes on types.
 @opindex mcet
 The @code{notrack} attribute on a variable with a type of pointer to
 function is used to inform the
-compiler that the function should not be instrumented when compiled
+compiler that the function called through the pointer should not be
+instrumented when compiled
 with the @option{-finstrument-control-flow} option.
 On the x86 targets, the @code{notrack} attribute causes the compiler
 to assume that the calling function is a valid target for a

@@ -459,15 +459,16 @@ Objective-C and Objective-C++ Dialects}.
 -fchkp-check-read  -fchkp-check-write  -fchkp-store-bounds @gol
 -fchkp-instrument-calls  -fchkp-instrument-marked-only @gol
 -fchkp-use-wrappers  -fchkp-flexible-struct-trailing-arrays@gol
--finstrument-control-flow  -finstrument-functions @gol
--finstrument-functions-exclude-function-list=@var{sym},@var{sym},@dots{} @gol
--finstrument-functions-exclude-file-list=@var{file},@var{file},@dots{} @gol
+-finstrument-control-flow @gol
 -fstack-protector  -fstack-protector-all  -fstack-protector-strong @gol
 -fstack-protector-explicit  -fstack-check @gol
 -fstack-limit-register=@var{reg}  -fstack-limit-symbol=@var{sym} @gol
 -fno-stack-limit  -fsplit-stack @gol
 -fvtable-verify=@r{[}std@r{|}preinit@r{|}none@r{]} @gol
 -fvtv-counts  -fvtv-debug} @gol
+-finstrument-functions @gol
+-finstrument-functions-exclude-function-list=@var{sym},@var{sym},@dots{} @gol
+-finstrument-functions-exclude-file-list=@var{file},@var{file},@dots{} @gol
 
 @item Preprocessor Options
 @xref{Preprocessor Options,,Options Controlling the Preprocessor}.
@@ -1202,7 +1203,8 @@ See RS/6000 and PowerPC Options.
 -mprefetchwt1  -mclflushopt  -mxsavec  -mxsaves @gol
 -msse4a  -m3dnow  -m3dnowa  -mpopcnt  -mabm  -mbmi  -mtbm  -mfma4  -mxop @gol
 -mlzcnt  -mbmi2  -mfxsr  -mxsave  -mxsaveopt  -mrtm  -mlwp  -mmpx  @gol
--mmwaitx  -mclzero  -mpku  -mthreads -mcet -mibt -mshstk @gol
+-mmwaitx  -mclzero  -mpku  -mthreads -mcet -mcet-indbranch-tracking
+-mcet-shadow-stack @gol
 -mms-bitfields  -mno-align-stringops  -minline-all-stringops @gol
 -minline-stringops-dynamically  -mstringop-strategy=@var{alg} @gol
 -mmemcpy-strategy=@var{strategy}  -mmemset-strategy=@var{strategy} @gol
@@ -11265,7 +11267,7 @@ Enabled by default.
 Enable instrumentation of control-flow transfers to increase a program
 security by checking the landing pads for control-flow transfer
 instructions (i.e.routine call, routine return, jump) are valid
-targets.  This prevets diverting the control flow instructions from
+targets.  This prevents diverting the control flow instructions from
 its original target address to a new target.  Each control-flow
 transfer and valid target are instrumented with a code to check
 that the transfer is valid.  This is used to to protect against
@@ -11281,8 +11283,10 @@ implementation requires all object files have to be compiled with
 be CET enabled.
 
 Generated instrumentation may be controlled by target specific
-@option{-mcet-indirect-branch-tracking} and @option{-mcet-shadow-stack}
-options and @code{notrack} function attribute (@pxref{Function Attributes}).
+@option{-mcet-indbranch-tracking} and @option{-mcet-shadow-stack}
+options and @code{notrack} attribute for function
+(@pxref{x86 Function Attributes}) and variables
+(@pxref{x86 Variable Attributes}).
 GCC also provides a number of built-in functions for fine-grained controll
 of CET-based implementation. @xref{x86 Built-in Functions}, for more
 information.
@@ -25583,7 +25587,7 @@ GCC depresses SSEx instructions when @option{-mavx} is used. Instead, it
 generates new AVX instructions or AVX equivalence for all SSEx instructions
 when needed.
 
-The @option{-mcet} option turns on @option{-mcet-indirect-branch-tracking} and
+The @option{-mcet} option turns on @option{-mcet-indbranch-tracking} and
 @option{mcet-shadow-stack} options. Each of these options enables coresponding
 support from x86 Control-flow Enforcment Technology (CET) implementation. 
 
@@ -25667,8 +25671,8 @@ see @ref{Other Builtins} for details.
 This option enables use of the @code{movbe} instruction to implement
 @code{__builtin_bswap32} and @code{__builtin_bswap64}.
 
-@item -mcet-indirect-branch-tracking
-@opindex mcet-indirect-branch-tracking
+@item -mcet-indbranch-tracking
+@opindex mcet-indbranch-tracking
 This option instructs GCC to use only idirect branch tracking support from
 x86 Control-flow Enforcment Technology (CET) implementation, see @code{-mcet}
 option. The option has effect only
