@@ -42362,7 +42362,7 @@ x86_output_mi_thunk (FILE *file, tree, HOST_WIDE_INT delta,
   emit_note (NOTE_INSN_PROLOGUE_END);
 
   /* CET is enabled, insert EB instruction.  */
-  if (flag_instrument_control_flow || flag_cet_indbranch_tracking)
+  if (flag_instrument_control_flow && flag_cet_indbranch_tracking)
     {
       emit_insn (gen_nop_endbr ());
     }
@@ -50096,7 +50096,7 @@ ix86_bnd_prefixed_insn_p (rtx insn)
 bool
 ix86_notrack_prefixed_insn_p (rtx insn)
 {
-  if (!insn || !(flag_instrument_control_flow || flag_cet_indbranch_tracking))
+  if (!insn || !(flag_instrument_control_flow && flag_cet_indbranch_tracking))
     return 0;
 
   if (CALL_P (insn))

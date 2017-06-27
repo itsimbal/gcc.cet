@@ -486,16 +486,28 @@ ix86_handle_option (struct gcc_options *opts,
 	}
       return true;
 
+    case OPT_mcet_indbranch_tracking:
+    case OPT_mcet_shadow_stack:
     case OPT_mcet:
       if (value)
 	{
 	  opts->x_ix86_isa_flags2 |= OPTION_MASK_ISA_CET_SET;
 	  opts->x_ix86_isa_flags2_explicit |= OPTION_MASK_ISA_CET_SET;
+	  if (code == OPT_mcet)
+	    {
+	      flag_cet_indbranch_tracking = 1;
+	      flag_cet_shadow_stack = 1;
+	    }
 	}
       else
 	{
 	  opts->x_ix86_isa_flags2 &= ~OPTION_MASK_ISA_CET_UNSET;
 	  opts->x_ix86_isa_flags2_explicit |= OPTION_MASK_ISA_CET_UNSET;
+	  if (code == OPT_mcet)
+	    {
+	      flag_cet_indbranch_tracking = 0;
+	      flag_cet_shadow_stack = 0;
+	    }
 	}
       return true;
 

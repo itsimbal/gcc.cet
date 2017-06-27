@@ -4912,7 +4912,7 @@ public:
   /* opt_pass methods: */
   virtual bool gate (function *)
     {
-      return (flag_instrument_control_flow || flag_cet_indbranch_tracking);
+      return (flag_instrument_control_flow && flag_cet_indbranch_tracking);
     }
 
   virtual unsigned int execute (function *)
