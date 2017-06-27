@@ -5570,6 +5570,17 @@ Specify which floating-point unit to use.  You must specify the
 @code{target("fpmath=sse,387")} option as
 @code{target("fpmath=sse+387")} because the comma would separate
 different options.
+
+@item notrack
+@cindex @code{notrack} function attribute, x86
+@opindex mcet
+The @code{notrack} attribute on a function is used to inform the
+compiler that the function should not be instrumented when compiled
+with the @option{-finstrument-control-flow} option.
+On the x86 targets, the @code{notrack} attribute causes the compiler
+to assume that the calling function is a valid target for a
+control-flow trasfer. This attribute can be used only when the
+@option{-mcet} switch is specified. Otherwise the attribute is ignored.
 @end table
 
 On the x86, the inliner does not inline a
@@ -6418,6 +6429,18 @@ command-line options, respectively;
 see @ref{x86 Options}, for details of how structure layout is affected.
 @xref{x86 Type Attributes}, for information about the corresponding
 attributes on types.
+
+@item notrack
+@cindex @code{notrack} variable attribute, x86
+@opindex mcet
+The @code{notrack} attribute on a variable with a type of pointer to
+function is used to inform the
+compiler that the function should not be instrumented when compiled
+with the @option{-finstrument-control-flow} option.
+On the x86 targets, the @code{notrack} attribute causes the compiler
+to assume that the calling function is a valid target for a
+control-flow trasfer. This attribute can be used only when the
+@option{-mcet} switch is specified. Otherwise the attribute is ignored.
 
 @end table
 
@@ -20798,6 +20821,21 @@ They generate reads and writes to PKRU.
 @smallexample
 void __builtin_ia32_wrpkru (unsigned int)
 unsigned int __builtin_ia32_rdpkru ()
+@end smallexample
+
+The following built-in functions are available when @option{-mcet} is used.
+They are used to support Control-flow Enforcment Technology (CET).
+All of them generate the machine instruction that is part of the name.
+@smallexample
+unsigned int __builtin_ia32_rdsspd ()
+unsigned int _rdsspd_u32 ()
+unsigned long long __builtin_ia32_rdsspq ()
+unsigned long long _rdsspq_u64 ()
+
+void __builtin_ia32_incsspd (unsigned int)
+void _incsspd (unsigned int)
+void __builtin_ia32_incsspq (unsigned long long)
+void _incsspq (unsigned long long)
 @end smallexample
 
 @node x86 transactional memory intrinsics
