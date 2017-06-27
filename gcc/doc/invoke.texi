@@ -465,10 +465,10 @@ Objective-C and Objective-C++ Dialects}.
 -fstack-limit-register=@var{reg}  -fstack-limit-symbol=@var{sym} @gol
 -fno-stack-limit  -fsplit-stack @gol
 -fvtable-verify=@r{[}std@r{|}preinit@r{|}none@r{]} @gol
--fvtv-counts  -fvtv-debug} @gol
+-fvtv-counts  -fvtv-debug @gol
 -finstrument-functions @gol
 -finstrument-functions-exclude-function-list=@var{sym},@var{sym},@dots{} @gol
--finstrument-functions-exclude-file-list=@var{file},@var{file},@dots{} @gol
+-finstrument-functions-exclude-file-list=@var{file},@var{file},@dots{}}
 
 @item Preprocessor Options
 @xref{Preprocessor Options,,Options Controlling the Preprocessor}.
@@ -1203,8 +1203,8 @@ See RS/6000 and PowerPC Options.
 -mprefetchwt1  -mclflushopt  -mxsavec  -mxsaves @gol
 -msse4a  -m3dnow  -m3dnowa  -mpopcnt  -mabm  -mbmi  -mtbm  -mfma4  -mxop @gol
 -mlzcnt  -mbmi2  -mfxsr  -mxsave  -mxsaveopt  -mrtm  -mlwp  -mmpx  @gol
--mmwaitx  -mclzero  -mpku  -mthreads -mcet -mcet-indbranch-tracking
--mcet-shadow-stack @gol
+-mmwaitx  -mclzero  -mpku  -mthreads @gol
+-mcet -mcet-indbranch-tracking -mcet-shadow-stack @gol
 -mms-bitfields  -mno-align-stringops  -minline-all-stringops @gol
 -minline-stringops-dynamically  -mstringop-strategy=@var{alg} @gol
 -mmemcpy-strategy=@var{strategy}  -mmemset-strategy=@var{strategy} @gol
