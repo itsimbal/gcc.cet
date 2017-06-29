@@ -227,3 +227,6 @@ REG_NOTE (RETURNED)
    The decl might not be available in the call due to splitting of the call
    insn.  This note is a SYMBOL_REF.  */
 REG_NOTE (CALL_DECL)
+
+/* Indicate that a call is a NOTRACK call.  */
+REG_NOTE (CALL_NOTRACK)
