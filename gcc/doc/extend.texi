@@ -5570,6 +5570,15 @@ Specify which floating-point unit to use.  You must specify the
 @code{target("fpmath=sse,387")} option as
 @code{target("fpmath=sse+387")} because the comma would separate
 different options.
+
+@item notrack
+@cindex @code{notrack} function attribute, x86
+The @code{notrack} attribute on a function is used to inform the
+compiler that the function should not be instrumented when compiled
+with the @option{-finstrument-control-flow} option. The compiler
+assumes that the function's address is a valid target for a
+control-flow trasfer.
+
 @end table
 
 On the x86, the inliner does not inline a
@@ -6418,6 +6427,15 @@ command-line options, respectively;
 see @ref{x86 Options}, for details of how structure layout is affected.
 @xref{x86 Type Attributes}, for information about the corresponding
 attributes on types.
+
+@item notrack
+@cindex @code{notrack} variable attribute, x86
+The @code{notrack} attribute on a variable with a type of pointer to
+function is used to inform the compiler that the function called
+through the pointer should not be instrumented when compiled
+with the @option{-finstrument-control-flow} option. The compiler
+to assume that the function's address is a valid target for a
+control-flow trasfer.
 
 @end table
 
