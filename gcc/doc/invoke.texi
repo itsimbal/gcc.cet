@@ -1204,6 +1204,7 @@ See RS/6000 and PowerPC Options.
 -msse4a  -m3dnow  -m3dnowa  -mpopcnt  -mabm  -mbmi  -mtbm  -mfma4  -mxop @gol
 -mlzcnt  -mbmi2  -mfxsr  -mxsave  -mxsaveopt  -mrtm  -mlwp  -mmpx  @gol
 -mmwaitx  -mclzero  -mpku  -mthreads @gol
+-mcet -mcet-indbranch-tracking -mcet-shadow-stack @gol
 -mms-bitfields  -mno-align-stringops  -minline-all-stringops @gol
 -minline-stringops-dynamically  -mstringop-strategy=@var{alg} @gol
 -mmemcpy-strategy=@var{strategy}  -mmemset-strategy=@var{strategy} @gol
@@ -11275,6 +11276,22 @@ Programming (ROP), and similarly call/jmp-oriented programming
 Each target suppose to have its own target specific implementation
 and in case of absence of the implementation the
 @option{-finstrument-control-flow} cause an error message.
+
+Currently there is an implementation for Intel Control-flow
+Enforcment Technology (CET) available, thus
+x86 GNU/Linux target and @option{-mcet} are required to enable this
+feature.  In order to get an application to be CET enabled the
+implementation requires all object files have to be compiled with
+@option{-finstrument-control-flow} and all linked in libraries have to
+be CET enabled.
+
+Instrumentation for x86 may be controlled by target specific
+@option{-mcet-indbranch-tracking} and @option{-mcet-shadow-stack}
+options and @code{notrack} attribute for function
+(@pxref{x86 Function Attributes}) and variables
+(@pxref{x86 Variable Attributes}).  GCC also provides a number of
+built-in functions for fine-grained controll of CET-based
+implementation. @xref{x86 Built-in Functions}, for more information.
 
 @item -fstack-protector
 @opindex fstack-protector
@@ -25547,15 +25564,19 @@ preferred alignment to @option{-mpreferred-stack-boundary=2}.
 @need 200
 @itemx -mclzero
 @opindex mclzero
+@need 200
 @itemx -mpku
 @opindex mpku
+@need 200
+@itemx -mcet
+@opindex mcet
 These switches enable the use of instructions in the MMX, SSE,
 SSE2, SSE3, SSSE3, SSE4.1, AVX, AVX2, AVX512F, AVX512PF, AVX512ER, AVX512CD,
 SHA, AES, PCLMUL, FSGSBASE, RDRND, F16C, FMA, SSE4A, FMA4, XOP, LWP, ABM,
 AVX512VL, AVX512BW, AVX512DQ, AVX512IFMA AVX512VBMI, BMI, BMI2, FXSR,
-XSAVE, XSAVEOPT, LZCNT, RTM, MPX, MWAITX, PKU, 3DNow!@: or enhanced 3DNow!@:
-extended instruction sets.  Each has a corresponding @option{-mno-} option
-to disable use of these instructions.
+XSAVE, XSAVEOPT, LZCNT, RTM, MPX, MWAITX, PKU, CET,
+3DNow!@: or enhanced 3DNow!@: extended instruction sets.  Each has a
+corresponding @option{-mno-} option to disable use of these instructions.
 
 These extensions are also available as built-in functions: see
 @ref{x86 Built-in Functions}, for details of the functions enabled and
@@ -25574,6 +25595,10 @@ perform run-time CPU detection must compile separate files for each
 supported architecture, using the appropriate flags.  In particular,
 the file containing the CPU detection code should be compiled without
 these options.
+
+The @option{-mcet} option turns on @option{-mcet-indbranch-tracking} and
+@option{mcet-shadow-stack} options. Each of these options enables coresponding
+support from x86 Control-flow Enforcment Technology (CET) implementation. 
 
 @item -mdump-tune-features
 @opindex mdump-tune-features
@@ -25647,6 +25672,22 @@ see @ref{Other Builtins} for details.
 @opindex mmovbe
 This option enables use of the @code{movbe} instruction to implement
 @code{__builtin_bswap32} and @code{__builtin_bswap64}.
+
+@item -mcet-indbranch-tracking
+@opindex mcet-indbranch-tracking
+This option instructs GCC to use only indirect branch tracking (indirect
+calls and jumps) support from x86 Control-flow Enforcment Technology (CET)
+implementation, see @code{-mcet} option.  The option has effect only if
+@code{-finstrument-control-flow} option is specified.  The option is on
+by default when @code{-mcet} option is specified.
+
+@item -mcet-shadow-stack
+@opindex mcet-shadow-stack
+This option instructs GCC to use only shadow stack (return address tracking)
+support from x86 Control-flow Enforcment Technology (CET) implementation, see
+@code{-mcet} option. The option has effect only if
+@code{-finstrument-control-flow} option is specified. The
+option is on by default when @code{-mcet} option is specified.
 
 @item -mcrc32
 @opindex mcrc32

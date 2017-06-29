@@ -20818,6 +20818,21 @@ void __builtin_ia32_wrpkru (unsigned int)
 unsigned int __builtin_ia32_rdpkru ()
 @end smallexample
 
+The following built-in functions are available when @option{-mcet} is used.
+They are used to support Intel Control-flow Enforcment Technology (CET).
+All of them generate the machine instruction that is part of the name.
+@smallexample
+unsigned int __builtin_ia32_rdsspd ()
+unsigned int _rdsspd_u32 ()
+unsigned long long __builtin_ia32_rdsspq ()
+unsigned long long _rdsspq_u64 ()
+
+void __builtin_ia32_incsspd (unsigned int)
+void _incsspd (unsigned int)
+void __builtin_ia32_incsspq (unsigned long long)
+void _incsspq (unsigned long long)
+@end smallexample
+
 @node x86 transactional memory intrinsics
 @subsection x86 Transactional Memory Intrinsics
 
