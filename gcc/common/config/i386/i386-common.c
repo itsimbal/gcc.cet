@@ -137,6 +137,7 @@ along with GCC; see the file COPYING3.  If not see
 #define OPTION_MASK_ISA_CLZERO_SET OPTION_MASK_ISA_CLZERO
 #define OPTION_MASK_ISA_PKU_SET OPTION_MASK_ISA_PKU
 #define OPTION_MASK_ISA_RDPID_SET OPTION_MASK_ISA_RDPID
+#define OPTION_MASK_ISA_CET_SET OPTION_MASK_ISA_CET
 
 /* Define a set of ISAs which aren't available when a given ISA is
    disabled.  MMX and SSE ISAs are handled separately.  */
@@ -202,6 +203,7 @@ along with GCC; see the file COPYING3.  If not see
 #define OPTION_MASK_ISA_CLZERO_UNSET OPTION_MASK_ISA_CLZERO
 #define OPTION_MASK_ISA_PKU_UNSET OPTION_MASK_ISA_PKU
 #define OPTION_MASK_ISA_RDPID_UNSET OPTION_MASK_ISA_RDPID
+#define OPTION_MASK_ISA_CET_UNSET OPTION_MASK_ISA_CET
 
 /* SSE4 includes both SSE4.1 and SSE4.2.  -mno-sse4 should the same
    as -mno-sse4.1. */
@@ -481,6 +483,37 @@ ix86_handle_option (struct gcc_options *opts,
 	{
 	  opts->x_ix86_isa_flags2 &= ~OPTION_MASK_ISA_RDPID_UNSET;
 	  opts->x_ix86_isa_flags2_explicit |= OPTION_MASK_ISA_RDPID_UNSET;
+	}
+      return true;
+
+    case OPT_mcet_indbranch_tracking:
+    case OPT_mcet_shadow_stack:
+    case OPT_mcet:
+      if (value)
+	{
+	  opts->x_ix86_isa_flags2 |= OPTION_MASK_ISA_CET_SET;
+	  opts->x_ix86_isa_flags2_explicit |= OPTION_MASK_ISA_CET_SET;
+	  if (code == OPT_mcet)
+	    {
+	      flag_cet_indbranch_tracking = 1;
+	      flag_cet_shadow_stack = 1;
+	    }
+	}
+      else
+	{
+	  if (code == OPT_mcet_shadow_stack)
+	    flag_cet_shadow_stack = 0;
+	  else if (code == OPT_mcet_indbranch_tracking)
+	    flag_cet_indbranch_tracking = 0;
+	  if (code == OPT_mcet
+	     || (flag_cet_shadow_stack == 0
+		&& flag_cet_indbranch_tracking ==0))
+	    {
+	      opts->x_ix86_isa_flags2 &= ~OPTION_MASK_ISA_CET_UNSET;
+	      opts->x_ix86_isa_flags2_explicit |= OPTION_MASK_ISA_CET_UNSET;
+	      flag_cet_indbranch_tracking = 0;
+	      flag_cet_shadow_stack = 0;
+	    }
 	}
       return true;
 

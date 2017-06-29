@@ -931,3 +931,23 @@ Attempt to avoid generating instruction sequences containing ret bytes.
 mgeneral-regs-only
 Target Report RejectNegative Mask(GENERAL_REGS_ONLY) Var(ix86_target_flags) Save
 Generate code which uses only the general registers.
+
+mcet
+Target Report Mask(ISA_CET) Var(ix86_isa_flags2) Save
+Support Control-flow  Enforcment Technology (CET) built-in functions
+and code generation.
+
+mcet-indbranch-tracking
+Target Report Var(flag_cet_indbranch_tracking) Init(0)
+Specifically enables an indirect branch tracking feature from Control-flow
+Enforcment Technology (CET).
+
+mcet-shadow-stack
+Target Report Var(flag_cet_shadow_stack) Init(0)
+Specifically enables an shadow stack support feature from Control-flow
+Enforcment Technology (CET).
+
+mcet-switch
+Target Report Undocumented Var(flag_cet_switch) Init(0)
+Turn on CET instrumentation for switch statements, which use jump table and
+indirect jump.

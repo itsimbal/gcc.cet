@@ -4616,6 +4616,149 @@ make_pass_stv (gcc::context *ctxt)
   return new pass_stv (ctxt);
 }
 
+/* Inserting ENDBRANCH instructions.  */
+
+static unsigned int
+rest_of_insert_endbranch (void)
+{
+  timevar_push (TV_MACH_DEP);
+
+  rtx cet_eb;
+  rtx_insn *insn;
+  basic_block bb;
+
+  /* Currently emit EB if it's a tracking function, i.e. 'notrack' is
+     absent among function attributes.  Later an optimization will be
+     introduced to make analysis if an address of a static function is
+     taken.  A static function whose address is not taken will get a
+     notrack attribute.  This will allow to reduce the number of EB.  */
+
+  if (!lookup_attribute ("notrack", DECL_ATTRIBUTES (cfun->decl)))
+    {
+      cet_eb = gen_nop_endbr ();
+
+      bb = ENTRY_BLOCK_PTR_FOR_FN (cfun)->next_bb;
+      insn = BB_HEAD (bb);
+      emit_insn_before (cet_eb, insn);
+    }
+
+  bb = 0;
+  FOR_EACH_BB_FN (bb, cfun)
+    {
+      for (insn = BB_HEAD (bb); insn != NEXT_INSN (BB_END (bb));
+	   insn = NEXT_INSN (insn))
+	{
+	  if (INSN_P (insn) && GET_CODE (insn) == CALL_INSN)
+	    {
+	      rtx_insn *next_insn = insn;
+
+	      while ((next_insn != BB_END (bb))
+		      && (DEBUG_INSN_P (NEXT_INSN (next_insn))
+			  || NOTE_P (NEXT_INSN (next_insn))
+			  || BARRIER_P (NEXT_INSN (next_insn))))
+		next_insn = NEXT_INSN (next_insn);
+
+	      /* Generate ENDBRANCH after CALL, which can return more than
+		 twice, setjmp-like functions.  */
+	      if (find_reg_note (insn, REG_SETJMP, NULL) != NULL)
+		{
+		  cet_eb = gen_nop_endbr ();
+		  emit_insn_after (cet_eb, next_insn);
+		}
+	      continue;
+	    }
+
+	  if (INSN_P (insn) && JUMP_P (insn) && flag_cet_switch)
+	    {
+	      rtx target = JUMP_LABEL (insn);
+	      if (target == NULL_RTX || ANY_RETURN_P (target))
+		continue;
+
+	      /* Check the jump is a switch table.  */
+	      rtx_insn *label = as_a<rtx_insn *> (target);
+	      rtx_insn *table = next_insn (label);
+	      if (table == NULL_RTX || !JUMP_TABLE_DATA_P (table))
+		continue;
+
+	      /* For the indirect jump find out all places it jumps and insert
+		 ENDBRANCH there.  It should be done under a special flag to
+		 control ENDBRANCH generation for switch stmts.  */
+	      edge_iterator ei;
+	      edge e;
+	      basic_block dest_blk;
+
+	      FOR_EACH_EDGE (e, ei, bb->succs)
+		{
+		  rtx_insn *insn;
+
+		  dest_blk = e->dest;
+		  insn = BB_HEAD (dest_blk);
+		  gcc_assert (LABEL_P (insn));
+		  cet_eb = gen_nop_endbr ();
+		  emit_insn_after (cet_eb, insn);
+		}
+	      continue;
+	    }
+
+	  if ((LABEL_P (insn) && LABEL_PRESERVE_P (insn))
+	      || (NOTE_P (insn)
+		  && NOTE_KIND (insn) == NOTE_INSN_DELETED_LABEL))
+/* TODO. Check /s bit also.  */
+	    {
+	      cet_eb = gen_nop_endbr ();
+	      emit_insn_after (cet_eb, insn);
+	      continue;
+	    }
+	}
+    }
+
+  timevar_pop (TV_MACH_DEP);
+  return 0;
+}
+
+namespace {
+
+const pass_data pass_data_insert_endbranch =
+{
+  RTL_PASS, /* type.  */
+  "cet", /* name.  */
+  OPTGROUP_NONE, /* optinfo_flags.  */
+  TV_MACH_DEP, /* tv_id.  */
+  0, /* properties_required.  */
+  0, /* properties_provided.  */
+  0, /* properties_destroyed.  */
+  0, /* todo_flags_start.  */
+  0, /* todo_flags_finish.  */
+};
+
+class pass_insert_endbranch : public rtl_opt_pass
+{
+public:
+  pass_insert_endbranch (gcc::context *ctxt)
+    : rtl_opt_pass (pass_data_insert_endbranch, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *)
+    {
+      return (flag_instrument_control_flow && flag_cet_indbranch_tracking);
+    }
+
+  virtual unsigned int execute (function *)
+    {
+      return rest_of_insert_endbranch ();
+    }
+
+}; // class pass_insert_endbranch
+
+} // anon namespace
+
+rtl_opt_pass *
+make_pass_insert_endbranch (gcc::context *ctxt)
+{
+  return new pass_insert_endbranch (ctxt);
+}
+
 /* Return true if a red-zone is in use.  */
 
 bool
@@ -4647,7 +4790,8 @@ ix86_target_string (HOST_WIDE_INT isa, HOST_WIDE_INT isa2,
     { "-msgx",		OPTION_MASK_ISA_SGX },
     { "-mavx5124vnniw", OPTION_MASK_ISA_AVX5124VNNIW },
     { "-mavx5124fmaps", OPTION_MASK_ISA_AVX5124FMAPS },
-    { "-mavx512vpopcntdq", OPTION_MASK_ISA_AVX512VPOPCNTDQ }
+    { "-mavx512vpopcntdq", OPTION_MASK_ISA_AVX512VPOPCNTDQ },
+    { "-mcet",	OPTION_MASK_ISA_CET }
   };
   static struct ix86_target_opts isa_opts[] =
   {
@@ -6672,6 +6816,19 @@ ix86_option_override_internal (bool main_args_p,
       free (str);
     }
 
+  /* Do not support control flow instrumentation if CET is not enabled.  */
+  if (opts->x_flag_instrument_control_flow > 0)
+    {
+      if (!TARGET_CET_P (opts->x_ix86_isa_flags2))
+	{
+	  error ("%<-finstrument-control-flow%> requires CET support "
+		 "on this target. Use -mcet options to enable CET.");
+	  opts->x_flag_instrument_control_flow = 0;
+	  return false;
+	}
+      opts->x_flag_instrument_control_flow = 2;
+    }
+
   return true;
 }
 
@@ -7077,6 +7234,7 @@ ix86_valid_target_attribute_inner_p (tree args, char *p_strings[],
     IX86_ATTR_ISA ("mpx",	OPT_mmpx),
     IX86_ATTR_ISA ("clwb",	OPT_mclwb),
     IX86_ATTR_ISA ("rdpid",	OPT_mrdpid),
+    IX86_ATTR_ISA ("cet",	OPT_mcet),
 
     /* enum options */
     IX86_ATTR_ENUM ("fpmath=",	OPT_mfpmath_),
@@ -19170,6 +19328,8 @@ ix86_print_operand (FILE *file, rtx x, int code)
 	case '!':
 	  if (ix86_bnd_prefixed_insn_p (current_output_insn))
 	    fputs ("bnd ", file);
+	  if (ix86_notrack_prefixed_insn_p (current_output_insn))
+	    fputs ("notrack ", file);
 	  return;
 
 	default:
@@ -32355,8 +32515,10 @@ BDESC_VERIFYS (IX86_BUILTIN__BDESC_MPX_CONST_FIRST,
 	       IX86_BUILTIN__BDESC_MPX_LAST, 1);
 BDESC_VERIFYS (IX86_BUILTIN__BDESC_MULTI_ARG_FIRST,
 	       IX86_BUILTIN__BDESC_MPX_CONST_LAST, 1);
-BDESC_VERIFYS (IX86_BUILTIN_MAX,
+BDESC_VERIFYS (IX86_BUILTIN__BDESC_CET_FIRST,
 	       IX86_BUILTIN__BDESC_MULTI_ARG_LAST, 1);
+BDESC_VERIFYS (IX86_BUILTIN_MAX,
+	       IX86_BUILTIN__BDESC_CET_LAST, 1);
 
 /* Set up all the MMX/SSE builtins, even builtins for instructions that are not
    in the current target ISA to allow the user to compile particular modules
@@ -33017,6 +33179,20 @@ ix86_init_mmx_sse_builtins (void)
   BDESC_VERIFYS (IX86_BUILTIN__BDESC_MULTI_ARG_LAST,
 		 IX86_BUILTIN__BDESC_MULTI_ARG_FIRST,
 		 ARRAY_SIZE (bdesc_multi_arg) - 1);
+
+  /* Add CET inrinsics.  */
+  for (i = 0, d = bdesc_cet; i < ARRAY_SIZE (bdesc_cet); i++, d++)
+    {
+      BDESC_VERIFY (d->code, IX86_BUILTIN__BDESC_CET_FIRST, i);
+      if (d->name == 0)
+	continue;
+
+      ftype = (enum ix86_builtin_func_type) d->flag;
+      def_builtin2 (d->mask, d->name, ftype, d->code);
+    }
+  BDESC_VERIFYS (IX86_BUILTIN__BDESC_CET_LAST,
+		 IX86_BUILTIN__BDESC_CET_FIRST,
+		 ARRAY_SIZE (bdesc_cet) - 1);
 }
 
 static void
@@ -39526,6 +39702,14 @@ s4fma_expand:
 					    d->flag, d->comparison);
     }
 
+  if (fcode >= IX86_BUILTIN__BDESC_CET_FIRST
+      && fcode <= IX86_BUILTIN__BDESC_CET_LAST)
+    {
+      i = fcode - IX86_BUILTIN__BDESC_CET_FIRST;
+      return ix86_expand_special_args_builtin (bdesc_cet + i, exp,
+						     target);
+    }
+
   gcc_unreachable ();
 }
 
@@ -42332,6 +42516,10 @@ x86_output_mi_thunk (FILE *file, tree, HOST_WIDE_INT delta,
     }
 
   emit_note (NOTE_INSN_PROLOGUE_END);
+
+  /* CET is enabled, insert EB instruction.  */
+  if (flag_instrument_control_flow && flag_cet_indbranch_tracking)
+      emit_insn (gen_nop_endbr ());
 
   /* If VCALL_OFFSET, we'll need THIS in a register.  Might as well
      pull it in now and let DELTA benefit.  */
@@ -50054,6 +50242,35 @@ ix86_bnd_prefixed_insn_p (rtx insn)
 
   /* All other insns are prefixed only if function is instrumented.  */
   return chkp_function_instrumented_p (current_function_decl);
+}
+
+/* Return 1 if control tansfer instruction INSN
+   should be encoded with notrack prefix.  */
+
+bool
+ix86_notrack_prefixed_insn_p (rtx insn)
+{
+  if (!insn || !(flag_instrument_control_flow && flag_cet_indbranch_tracking))
+    return 0;
+
+  if (CALL_P (insn))
+      return find_reg_note (insn, REG_CALL_NOTRACK, 0);
+
+  if (JUMP_P (insn) && !flag_cet_switch)
+    {
+      rtx target = JUMP_LABEL (insn);
+      if (target == NULL_RTX || ANY_RETURN_P (target))
+	return 0;
+
+      /* Check the jump is a switch table.  */
+      rtx_insn *label = as_a<rtx_insn *> (target);
+      rtx_insn *table = next_insn (label);
+      if (table == NULL_RTX || !JUMP_TABLE_DATA_P (table))
+	return 0;
+      else
+	return 1;
+    }
+  return 0;
 }
 
 /* Calculate integer abs() using only SSE2 instructions.  */
