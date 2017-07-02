@@ -1,8 +1,7 @@
-/* Verify that CET works.  */
 /* { dg-do compile } */
 /* { dg-options "-O -finstrument-control-flow -mcet" } */
 /* { dg-final { scan-assembler-times "endbr32|endbr64" 1 } } */
-/* { dg-final { scan-assembler-times "notrack call\[ \t]+" 3 } } */
+/* { dg-final { scan-assembler-times "notrack call\[ \t]+" 2 } } */
 
 int func (int a) __attribute__ ((notrack));
 int (*fptr) (int a) __attribute__ ((notrack));

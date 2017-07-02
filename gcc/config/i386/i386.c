@@ -50254,7 +50254,18 @@ ix86_notrack_prefixed_insn_p (rtx insn)
     return 0;
 
   if (CALL_P (insn))
-      return find_reg_note (insn, REG_CALL_NOTRACK, 0);
+    {
+      rtx call = get_call_rtx_from (insn);
+      gcc_assert (call != NULL_RTX);
+      rtx addr = XEXP (call, 0);
+
+      /* Do not emit 'notrack' if it's not an indirect call.  */
+      if (MEM_P (addr)
+	  && GET_CODE (XEXP (addr, 0)) == SYMBOL_REF)
+	return 0;
+      else
+	return find_reg_note (insn, REG_CALL_NOTRACK, 0);
+    }
 
   if (JUMP_P (insn) && !flag_cet_switch)
     {
