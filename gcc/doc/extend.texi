@@ -5570,6 +5570,20 @@ Specify which floating-point unit to use.  You must specify the
 @code{target("fpmath=sse,387")} option as
 @code{target("fpmath=sse+387")} because the comma would separate
 different options.
+
+@item notrack
+@cindex @code{notrack} function attribute, x86
+The @code{notrack} attribute on a function is used to inform the
+compiler that the function should not be instrumented when compiled
+with the @option{-finstrument-control-flow} option.  The compiler
+assumes that the function's address is a valid target for a
+control-flow trasfer.
+
+The @code{notrack} attribute is applied to an object's type.  A
+direct function call is assumend a save call thus direct calls will
+not be instrumented by a compiler.
+The attribute is not propagated through assignment, store and load.
+
 @end table
 
 On the x86, the inliner does not inline a
@@ -6418,6 +6432,46 @@ command-line options, respectively;
 see @ref{x86 Options}, for details of how structure layout is affected.
 @xref{x86 Type Attributes}, for information about the corresponding
 attributes on types.
+
+@item notrack
+@cindex @code{notrack} variable attribute, x86
+The @code{notrack} attribute on a variable with a type of pointer
+to function is used to inform the compiler that the call through
+the pointer should not be instrumented when compiled with the
+@option{-finstrument-control-flow} option.  The compiler assumes
+that the function's address is a valid target for a control-flow
+trasfer.
+
+The @code{notrack} attribute is applied to an object's type and later
+transfered to a call instruction at the GIMPLE and RTL translation phase.
+The attribute is not propagated through assignment, store and load.
+
+@smallexample
+void (*foo1)(void) __attribute__(notrack);
+void (*foo2)(void);
+
+int
+main()
+@{
+  /* This call site is not tracked for
+     control-flow instrumentation.  */
+  (*foo1)();
+  foo1 = foo2;
+  /* This call site is still not tracked for
+     control-flow instrumentation.  */
+  (*foo1)();
+
+  /* This call site is tracked for
+     control-flow instrumentation.  */
+  (*foo2)();
+  foo2 = foo1;
+  /* This call site is still tracked for
+     control-flow instrumentation.  */
+  (*foo2)();
+
+  return 0;
+@}
+@end smallexample
 
 @end table
 
