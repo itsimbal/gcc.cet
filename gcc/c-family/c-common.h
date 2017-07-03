@@ -1123,6 +1123,7 @@ extern void preprocess_file (cpp_reader *);
 extern void pp_file_change (const line_map_ordinary *);
 extern void pp_dir_change (cpp_reader *, const char *);
 extern bool check_missing_format_attribute (tree, tree);
+extern bool check_missing_nocf_check_attribute (tree, tree);
 
 /* In c-omp.c  */
 struct omp_clause_mask

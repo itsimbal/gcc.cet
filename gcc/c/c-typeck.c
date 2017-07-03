@@ -6826,6 +6826,43 @@ convert_for_assignment (location_t location, location_t expr_loc, tree type,
 				        G_("return makes %q#v qualified function "
 					   "pointer from unqualified"),
 				        TYPE_QUALS (ttl) & ~TYPE_QUALS (ttr));
+
+	      /* Check if the right-hand side and left-hand side mismatch in a
+		 'nocf_check' attribute.  Both cases could be harmful:
+		 NOCF = CF  Implicit control-flow check from CF
+			    is dropped as a future call is done through NOCF;
+		 CF = NOCF  Control-flow check will be done through the CF but
+			    the check is not expected by NOCF.  */
+	      if (warn_ignored_attributes
+		  && check_missing_nocf_check_attribute (type, rhstype))
+		{
+		  switch (errtype)
+		    {
+		    case ic_argpass:
+		      warning_at (expr_loc, OPT_Wattributes,
+				  "nocf_check attribute mismatch for"
+				  " argument %d of %qE",
+				  parmnum, rname);
+		      break;
+		    case ic_assign:
+		      warning_at (location, OPT_Wattributes,
+				  "nocf_check attribute mismatch for"
+				  "  assignment");
+		      break;
+		    case ic_init:
+		      warning_at (location, OPT_Wattributes,
+				  "nocf_check attribute mismatch for"
+				  " initialization");
+		      break;
+		    case ic_return:
+		      warning_at (location, OPT_Wattributes,
+				  "nocf_check attribute mismatch for"
+				  " return type");
+		      break;
+		    default:
+		      gcc_unreachable ();
+		    }
+		}
 	    }
 	}
       /* Avoid warning about the volatile ObjC EH puts on decls.  */

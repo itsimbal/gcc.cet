@@ -8689,6 +8689,45 @@ convert_for_assignment (tree type, tree rhs,
 	  }
     }
 
+  /* Check if the right-hand side and left-hand side mismatch in a
+     'nocf_check' attribute.  Both cases could be harmful:
+     NOCF = CF	Implicit control-flow check from CF
+	    is dropped as a future call is done through NOCF;
+     CF = NOCF	Control-flow check will be done through the CF but
+	    the check is not expected by NOCF.  */
+
+  if (warn_ignored_attributes)
+    {
+      const enum tree_code codel = TREE_CODE (type);
+      if ((codel == POINTER_TYPE || codel == REFERENCE_TYPE)
+	  && coder == codel
+	  && check_missing_nocf_check_attribute (type, rhstype))
+	{
+	  switch (errtype)
+	    {
+	    case ICR_ARGPASS:
+	      warning (OPT_Wattributes,
+		       "nocf_check attribute mismatch for argument %d of %qE",
+		       parmnum, fndecl);
+	      break;
+	    case ICR_ASSIGN:
+	      warning (OPT_Wattributes,
+		       "nocf_check attribute mismatch for assignment");
+	      break;
+	    case ICR_INIT:
+	      warning (OPT_Wattributes,
+		       "nocf_check attribute mismatch for initialization");
+	      break;
+	    case ICR_RETURN:
+	      warning (OPT_Wattributes,
+		       "nocf_check attribute mismatch for return type");
+	      break;
+	    default:
+	      gcc_unreachable ();
+	    }
+	}
+    }
+
   /* If -Wparentheses, warn about a = b = c when a has type bool and b
      does not.  */
   if (warn_parentheses

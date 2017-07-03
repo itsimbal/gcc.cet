@@ -7253,6 +7253,26 @@ check_missing_format_attribute (tree ltype, tree rtype)
     return false;
 }
 
+/* Check for missing nocf_check attributes on function pointers.  LTYPE is
+   the new type or left-hand side type.  RTYPE is the old type or
+   right-hand side type.  Returns TRUE if LTYPE is missing the desired
+   attribute.  */
+
+bool
+check_missing_nocf_check_attribute (tree ltype, tree rtype)
+{
+  tree const ttr = TREE_TYPE (rtype), ttl = TREE_TYPE (ltype);
+  tree ra, la;
+
+  for (ra = TYPE_ATTRIBUTES (ttr); ra; ra = TREE_CHAIN (ra))
+    if (is_attribute_p ("nocf_check", TREE_PURPOSE (ra)))
+      break;
+  for (la = TYPE_ATTRIBUTES (ttl); la; la = TREE_CHAIN (la))
+    if (is_attribute_p ("nocf_check", TREE_PURPOSE (la)))
+      break;
+  return la != ra;
+}
+
 /* Setup a TYPE_DECL node as a typedef representation.
 
    X is a TYPE_DECL for a typedef statement.  Create a brand new
