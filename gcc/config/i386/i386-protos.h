@@ -241,6 +241,7 @@ extern void ix86_expand_sse2_mulvxdi3 (rtx, rtx, rtx);
 extern void ix86_expand_sse2_abs (rtx, rtx);
 
 extern bool ix86_bnd_prefixed_insn_p (rtx);
+extern bool ix86_notrack_prefixed_insn_p (rtx);
 
 /* In i386-c.c  */
 extern void ix86_target_macros (void);
@@ -344,3 +345,4 @@ class rtl_opt_pass;
 
 extern rtl_opt_pass *make_pass_insert_vzeroupper (gcc::context *);
 extern rtl_opt_pass *make_pass_stv (gcc::context *);
+extern rtl_opt_pass *make_pass_insert_endbranch (gcc::context *);

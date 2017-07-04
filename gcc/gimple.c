@@ -384,23 +384,23 @@ gimple_build_call_from_tree (tree t)
     {
       tree addr = CALL_EXPR_FN (t);
       if (DECL_P (addr) && VAR_P (addr))
-        fndecl = addr;
+	fndecl = addr;
       else if (TREE_CODE (addr) == SSA_NAME)
-        {
-          fndecl = SSA_NAME_VAR (addr);
-          if (fndecl == NULL_TREE)
-            {
-              gimple *stmt = SSA_NAME_DEF_STMT (addr);
-              /* Consider only the stmt, which is a GIMPLE assign
+	{
+	  fndecl = SSA_NAME_VAR (addr);
+	  if (fndecl == NULL_TREE)
+	    {
+	      gimple *stmt = SSA_NAME_DEF_STMT (addr);
+	      /* Consider only the stmt, which is a GIMPLE assign
 		 and have a simple assignment like <tmp> = <var>.
 		 Double check <var> is a function pointer.  */
-              if (gimple_assign_single_p (stmt))
+	      if (gimple_assign_single_p (stmt))
 		{
-                  fndecl = gimple_assign_rhs1 (stmt);
+		  fndecl = gimple_assign_rhs1 (stmt);
 		  gcc_assert (FUNCTION_POINTER_TYPE_P (TREE_TYPE (fndecl)));
 		}
-            }
-        }
+	    }
+	}
     }
 
   /* Check if the found decl has the no-track info and
