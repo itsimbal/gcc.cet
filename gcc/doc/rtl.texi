@@ -4041,7 +4041,7 @@ the pattern is either complex or misleading.
 
 The note @code{REG_CALL_NOTRACK} describe the information connected to
 the code instrumentation done with @code{-finstrument-control-flow} option.
-The note is set based on an @code{notrack} attribute. The note is stored
+The note is set based on an @code{notrack} attribute.  The note is stored
 in the @code{REG_NOTES} field of an insn.
 
 @table @code
