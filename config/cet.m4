@@ -33,6 +33,6 @@ case "$target" in
     ;;
 esac
 if test x$enable_cet = xyes; then
-  $1="-finstrument-control-flow -mcet"
+  $1="-finstrument-control-flow -mcet -include cet.h"
 fi
 ])

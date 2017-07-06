@@ -171,7 +171,8 @@ configure_deps = \
 	$(srcdir)/../config/dfp.m4 \
 	$(srcdir)/../config/unwind_ipinfo.m4 \
 	$(srcdir)/../config/gthr.m4 \
-	$(srcdir)/../config/sjlj.m4
+	$(srcdir)/../config/sjlj.m4 \
+	$(srcdir)/../config/cet.m4
 
 $(srcdir)/configure: @MAINT@ $(srcdir)/configure.ac $(configure_deps)
 	cd $(srcdir) && $(AUTOCONF)
