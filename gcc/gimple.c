@@ -397,7 +397,9 @@ gimple_build_call_from_tree (tree t)
 	      if (gimple_assign_single_p (stmt))
 		{
 		  fndecl = gimple_assign_rhs1 (stmt);
+/*		  TODO. Investigate calling C++ methods.
 		  gcc_assert (FUNCTION_POINTER_TYPE_P (TREE_TYPE (fndecl)));
+*/
 		}
 	    }
 	}

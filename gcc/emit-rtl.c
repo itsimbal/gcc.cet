@@ -3776,6 +3776,7 @@ try_split (rtx pat, rtx_insn *trial, int last)
 	case REG_NORETURN:
 	case REG_SETJMP:
 	case REG_TM:
+	case REG_CALL_NOTRACK:
 	  for (insn = insn_last; insn != NULL_RTX; insn = PREV_INSN (insn))
 	    {
 	      if (CALL_P (insn))
@@ -3809,7 +3810,6 @@ try_split (rtx pat, rtx_insn *trial, int last)
 	  break;
 
 	case REG_CALL_DECL:
-	case REG_CALL_NOTRACK:
 	  gcc_assert (call_insn != NULL_RTX);
 	  add_reg_note (call_insn, REG_NOTE_KIND (note), XEXP (note, 0));
 	  break;
