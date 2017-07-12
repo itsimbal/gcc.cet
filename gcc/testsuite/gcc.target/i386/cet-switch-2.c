@@ -2,7 +2,7 @@
 /* { dg-do compile } */
 /* { dg-options "-O -finstrument-control-flow -mcet -mcet-switch" } */
 /* { dg-final { scan-assembler-times "endbr32|endbr64" 12 } } */
-/* { dg-final { scan-assembler-times "\[ \t]+jmp\[ \t]+\[*].L\[0-9]+" 1 } } */
+/* { dg-final { scan-assembler-times "\[ \t]+jmp\[ \t]+\[*]" 1 } } */
 
 void func2 (int);
 

@@ -2,7 +2,7 @@
 /* { dg-do compile } */
 /* { dg-options "-O -finstrument-control-flow -mcet" } */
 /* { dg-final { scan-assembler-times "endbr32|endbr64" 1 } } */
-/* { dg-final { scan-assembler-times "notrack jmp\[ \t]+\[*].L\[0-9]+" 1 } } */
+/* { dg-final { scan-assembler-times "notrack jmp\[ \t]+\[*]" 1 } } */
 
 void func2 (int);
 
