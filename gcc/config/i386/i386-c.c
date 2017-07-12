@@ -451,9 +451,17 @@ ix86_target_macros_internal (HOST_WIDE_INT isa_flag,
   if (isa_flag2 & OPTION_MASK_ISA_RDPID)
     def_or_undef (parse_in, "__RDPID__");
   if (isa_flag2 & OPTION_MASK_ISA_IBT)
-    def_or_undef (parse_in, "__IBT__");
+    {
+      def_or_undef (parse_in, "__IBT__");
+      if (flag_instrument_control_flow)
+	def_or_undef (parse_in, "__CET__");
+    }
   if (isa_flag2 & OPTION_MASK_ISA_SHSTK)
-    def_or_undef (parse_in, "__SHSTK__");
+    {
+      def_or_undef (parse_in, "__SHSTK__");
+      if (flag_instrument_control_flow)
+	def_or_undef (parse_in, "__CET__");
+    }
   if (TARGET_IAMCU)
     {
       def_or_undef (parse_in, "__iamcu");

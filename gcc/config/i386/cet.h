@@ -27,23 +27,23 @@
 
 #ifdef __ASSEMBLER__
 
-# ifdef __IBT__
+# ifdef __CET__
+#  ifdef __IBT__
 /* GNU_PROPERTY_X86_FEATURE_1_IBT.  */
-#  define __PROPERTY_IBT 0x1
-# else
-#  define __PROPERTY_IBT 0x0
-# endif
+#   define __PROPERTY_IBT 0x1
+#  else
+#   define __PROPERTY_IBT 0x0
+#  endif
 
-# ifdef __SHSTK__
+#  ifdef __SHSTK__
 /* GNU_PROPERTY_X86_FEATURE_1_SHSTK.  */
-#  define __PROPERTY_SHSTK 0x2
-# else
-#  define __PROPERTY_SHSTK 0x0
-# endif
+#   define __PROPERTY_SHSTK 0x2
+#  else
+#   define __PROPERTY_SHSTK 0x0
+#  endif
 
-# define __PROPERTY_BITS (__PROPERTY_IBT | __PROPERTY_SHSTK)
+#  define __PROPERTY_BITS (__PROPERTY_IBT | __PROPERTY_SHSTK)
 
-# if __PROPERTY_BITS
 #  ifdef __LP64__
 #   define __PROPERTY_ALIGN 3
 #  else

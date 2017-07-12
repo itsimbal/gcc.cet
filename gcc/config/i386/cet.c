@@ -29,6 +29,9 @@ file_end_indicate_exec_stack_and_cet (void)
 {
   file_end_indicate_exec_stack ();
 
+  if (!flag_instrument_control_flow)
+    return;
+
   unsigned int feature_1 = 0;
 
   if (TARGET_IBT)
