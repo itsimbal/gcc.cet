@@ -378,39 +378,22 @@ gimple_build_call_from_tree (tree t)
   gimple_set_no_warning (call, TREE_NO_WARNING (t));
   gimple_call_set_with_bounds (call, CALL_WITH_BOUNDS_P (t));
 
-  /* It's an indirect call, find a var decl thorugh which
-     the call is made.  */
-  if (fndecl == NULL)
+  if (fndecl == NULL_TREE)
     {
+      /* Find the type of an indirect call.  */
       tree addr = CALL_EXPR_FN (t);
-      if (DECL_P (addr) && VAR_P (addr))
-	fndecl = addr;
-      else if (TREE_CODE (addr) == SSA_NAME)
+      if (TREE_CODE (addr) != FUNCTION_DECL)
 	{
-	  fndecl = SSA_NAME_VAR (addr);
-	  if (fndecl == NULL_TREE)
-	    {
-	      gimple *stmt = SSA_NAME_DEF_STMT (addr);
-	      /* Consider only the stmt, which is a GIMPLE assign
-		 and have a simple assignment like <tmp> = <var>.
-		 Double check <var> is a function pointer.  */
-	      if (gimple_assign_single_p (stmt))
-		{
-		  fndecl = gimple_assign_rhs1 (stmt);
-/*		  TODO. Investigate calling C++ methods.
-		  gcc_assert (FUNCTION_POINTER_TYPE_P (TREE_TYPE (fndecl)));
-*/
-		}
-	    }
+	  tree fntype = TREE_TYPE (addr);
+	  gcc_assert (POINTER_TYPE_P (fntype));
+	  fntype = TREE_TYPE (fntype);
+
+	  /* Check if its type has the no-track attribute and propagate
+	     it to the CALL insn.  */
+	  if (lookup_attribute ("notrack", TYPE_ATTRIBUTES (fntype)))
+	    gimple_call_set_with_notrack (call, TRUE);
 	}
     }
-
-  /* Check if the found decl has the no-track info and
-     propagate it to the CALL insn.  */
-  if (fndecl != NULL_TREE
-      && VAR_OR_FUNCTION_DECL_P (fndecl)
-      && lookup_attribute ("notrack", DECL_ATTRIBUTES (fndecl)))
-      gimple_call_set_with_notrack (call, TRUE);
 
   return call;
 }

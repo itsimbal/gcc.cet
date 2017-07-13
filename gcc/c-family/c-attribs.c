@@ -352,7 +352,7 @@ const struct attribute_spec c_common_attribute_table[] =
 			      handle_bnd_instrument, false },
   { "fallthrough",	      0, 0, false, false, false,
 			      handle_fallthrough_attribute, false },
-  { "notrack",		      0, 0, true,  false, false,
+  { "notrack",		      0, 0, false, true, true,
 			      handle_notrack_attribute, false },
   { NULL,                     0, 0, false, false, false, NULL, false }
 };
@@ -763,10 +763,10 @@ handle_notrack_attribute (tree *node, tree name,
 			  tree ARG_UNUSED (args),
 			  int ARG_UNUSED (flags), bool *no_add_attrs)
 {
-  if (TREE_CODE (*node) != FUNCTION_DECL
-      && (TREE_CODE (*node) != VAR_DECL
-	  || TREE_CODE (TREE_TYPE (*node)) != POINTER_TYPE
-	  || TREE_CODE (TREE_TYPE (TREE_TYPE (*node))) != FUNCTION_TYPE))
+  if (TREE_CODE (*node) != FUNCTION_TYPE
+      && TREE_CODE (*node) != METHOD_TYPE
+      && TREE_CODE (*node) != FIELD_DECL
+      && TREE_CODE (*node) != TYPE_DECL)
     {
       warning (OPT_Wattributes, "%qE attribute ignored", name);
       *no_add_attrs = true;

@@ -4633,7 +4633,8 @@ rest_of_insert_endbranch (void)
      taken.  A static function whose address is not taken will get a
      notrack attribute.  This will allow to reduce the number of EB.  */
 
-  if (!lookup_attribute ("notrack", DECL_ATTRIBUTES (cfun->decl)))
+  if (!lookup_attribute ("notrack",
+			 TYPE_ATTRIBUTES (TREE_TYPE (cfun->decl))))
     {
       cet_eb = gen_nop_endbr ();
 
