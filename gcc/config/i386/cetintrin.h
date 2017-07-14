@@ -62,6 +62,62 @@ _incsspq (unsigned long long __B)
   __builtin_ia32_incsspq (__B);
 }
 
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_saveprevssp (void)
+{
+  __builtin_ia32_saveprevssp ();
+}
+
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_rstorssp (void *__B)
+{
+  __builtin_ia32_rstorssp (__B);
+}
+
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_wrssd (unsigned int __B, void *__C)
+{
+  __builtin_ia32_wrssd (__B, __C);
+}
+
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_wrssq (unsigned long long __B, void *__C)
+{
+  __builtin_ia32_wrssq (__B, __C);
+}
+
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_wrussd (unsigned int __B, void *__C)
+{
+  __builtin_ia32_wrussd (__B, __C);
+}
+
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_wrussq (unsigned long long __B, void *__C)
+{
+  __builtin_ia32_wrussq (__B, __C);
+}
+
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_setssbsy (void)
+{
+  __builtin_ia32_setssbsy ();
+}
+
+extern __inline void
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_clrssbsy (void *__B)
+{
+  __builtin_ia32_clrssbsy (__B);
+}
+
 #ifdef __DISABLE_SHSTK__
 #undef __DISABLE_SHSTK__
 #pragma GCC pop_options

@@ -39448,6 +39448,57 @@ rdseed_step:
       emit_insn (gen_xabort (op0));
       return 0;
 
+    case IX86_BUILTIN_RSTORSSP:
+    case IX86_BUILTIN_CLRSSBSY:
+      arg0 = CALL_EXPR_ARG (exp, 0);
+      op0 = expand_normal (arg0);
+      icode = (fcode == IX86_BUILTIN_RSTORSSP
+	  ? CODE_FOR_rstorssp
+	  : CODE_FOR_clrssbsy);
+      if (!address_operand (op0, VOIDmode))
+	{
+	  op1 = convert_memory_address (Pmode, op0);
+	  op0 = copy_addr_to_reg (op1);
+	}
+      emit_insn (GEN_FCN (icode) (gen_rtx_MEM (Pmode, op0)));
+      return 0;
+
+    case IX86_BUILTIN_WRSSD:
+    case IX86_BUILTIN_WRSSQ:
+    case IX86_BUILTIN_WRUSSD:
+    case IX86_BUILTIN_WRUSSQ:
+      arg0 = CALL_EXPR_ARG (exp, 0);
+      op0 = expand_normal (arg0);
+      arg1 = CALL_EXPR_ARG (exp, 1);
+      op1 = expand_normal (arg1);
+      switch (fcode)
+	{
+	case IX86_BUILTIN_WRSSD:
+	  icode = CODE_FOR_wrsssi;
+	  mode = SImode;
+	  break;
+	case IX86_BUILTIN_WRSSQ:
+	  icode = CODE_FOR_wrssdi;
+	  mode = DImode;
+	  break;
+	case IX86_BUILTIN_WRUSSD:
+	  icode = CODE_FOR_wrusssi;
+	  mode = SImode;
+	  break;
+	case IX86_BUILTIN_WRUSSQ:
+	  icode = CODE_FOR_wrussdi;
+	  mode = DImode;
+	  break;
+	}
+      op0 = force_reg (mode, op0);
+      if (!address_operand (op1, VOIDmode))
+	{
+	  op2 = convert_memory_address (Pmode, op1);
+	  op1 = copy_addr_to_reg (op2);
+	}
+      emit_insn (GEN_FCN (icode) (op0, gen_rtx_MEM (mode, op1)));
+      return 0;
+
     default:
       break;
     }
