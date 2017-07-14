@@ -1,6 +1,6 @@
 /* { dg-do compile } */
 /* { dg-options "-O0 -fno-instrument-control-flow -mno-cet" } */
-/* { dg-final { scan-assembler-not "endbr32|endbr64" } } */
+/* { dg-final { scan-assembler-not "endbr" } } */
 /* { dg-final { scan-assembler-not "notrack call\[ \t]+" } } */
 
 int func (int a) __attribute__ ((notrack));

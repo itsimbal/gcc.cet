@@ -1,6 +1,7 @@
 /* { dg-do compile } */
 /* { dg-options "-O -finstrument-control-flow -mcet" } */
-/* { dg-final { scan-assembler-times "endbr32|endbr64" 4 } } */
+/* { dg-final { scan-assembler-times "endbr32" 4 { target ia32 } } } */
+/* { dg-final { scan-assembler-times "endbr64" 4 { target { ! ia32 } } } } */
 /* { dg-final { scan-assembler-times "call	_setjmp" 1 } } */
 /* { dg-final { scan-assembler-times "call	longjmp" 1 } } */
 

@@ -1,7 +1,8 @@
 /* Verify that CET works.  */
 /* { dg-do compile } */
 /* { dg-options "-O -finstrument-control-flow -mcet" } */
-/* { dg-final { scan-assembler-times "endbr32|endbr64" 3 } } */
+/* { dg-final { scan-assembler-times "endbr32" 3 { target ia32 } } } */
+/* { dg-final { scan-assembler-times "endbr64" 3 { target { ! ia32 } } } } */
 
 int func (int arg)
 {
