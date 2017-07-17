@@ -39463,7 +39463,7 @@ rdseed_step:
 	  icode = CODE_FOR_incsspdi;
 	  op1 = convert_to_mode (Pmode, op0, 1);
 	}
-      emit_insn (GEN_FCN (icode) (op1));
+      emit_insn (GEN_FCN (icode) (force_reg (Pmode, op1)));
       return 0;
 
     case IX86_BUILTIN_RSTORSSP:
