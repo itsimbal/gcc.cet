@@ -32568,8 +32568,10 @@ BDESC_VERIFYS (IX86_BUILTIN__BDESC_MULTI_ARG_FIRST,
 	       IX86_BUILTIN__BDESC_MPX_CONST_LAST, 1);
 BDESC_VERIFYS (IX86_BUILTIN__BDESC_CET_FIRST,
 	       IX86_BUILTIN__BDESC_MULTI_ARG_LAST, 1);
-BDESC_VERIFYS (IX86_BUILTIN_MAX,
+BDESC_VERIFYS (IX86_BUILTIN__BDESC_CET_RDSSP_FIRST,
 	       IX86_BUILTIN__BDESC_CET_LAST, 1);
+BDESC_VERIFYS (IX86_BUILTIN_MAX,
+	       IX86_BUILTIN__BDESC_CET_RDSSP_LAST, 1);
 
 /* Set up all the MMX/SSE builtins, even builtins for instructions that are not
    in the current target ISA to allow the user to compile particular modules
@@ -33244,6 +33246,21 @@ ix86_init_mmx_sse_builtins (void)
   BDESC_VERIFYS (IX86_BUILTIN__BDESC_CET_LAST,
 		 IX86_BUILTIN__BDESC_CET_FIRST,
 		 ARRAY_SIZE (bdesc_cet) - 1);
+
+  for (i = 0, d = bdesc_cet_rdssp;
+       i < ARRAY_SIZE (bdesc_cet_rdssp);
+       i++, d++)
+    {
+      BDESC_VERIFY (d->code, IX86_BUILTIN__BDESC_CET_RDSSP_FIRST, i);
+      if (d->name == 0)
+	continue;
+
+      ftype = (enum ix86_builtin_func_type) d->flag;
+      def_builtin2 (d->mask, d->name, ftype, d->code);
+    }
+  BDESC_VERIFYS (IX86_BUILTIN__BDESC_CET_RDSSP_LAST,
+		 IX86_BUILTIN__BDESC_CET_RDSSP_FIRST,
+		 ARRAY_SIZE (bdesc_cet_rdssp) - 1);
 }
 
 static void
@@ -39465,7 +39482,7 @@ rdseed_step:
 	  icode = CODE_FOR_incsspdi;
 	  op1 = convert_to_mode (Pmode, op0, 1);
 	}
-      emit_insn (GEN_FCN (icode) (op1));
+      emit_insn (GEN_FCN (icode) (force_reg (Pmode, op1)));
       return 0;
 
     case IX86_BUILTIN_RSTORSSP:
@@ -39827,6 +39844,14 @@ s4fma_expand:
       i = fcode - IX86_BUILTIN__BDESC_CET_FIRST;
       return ix86_expand_special_args_builtin (bdesc_cet + i, exp,
 					       target);
+    }
+
+  if (fcode >= IX86_BUILTIN__BDESC_CET_RDSSP_FIRST
+      && fcode <= IX86_BUILTIN__BDESC_CET_RDSSP_LAST)
+    {
+      i = fcode - IX86_BUILTIN__BDESC_CET_RDSSP_FIRST;
+      return ix86_expand_args_builtin (bdesc_cet_rdssp + i, exp,
+				       target);
     }
 
   gcc_unreachable ();
