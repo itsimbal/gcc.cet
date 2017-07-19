@@ -26,6 +26,8 @@
    for cross-architecture compatibility are noted with "@@@".  
    This file is included from unwind-dw2.c, unwind-sjlj.c or
    unwind-ia64.c.  */
+ 
+#include "unwind-shadow-stack.h"
 
 /* Subroutine of _Unwind_RaiseException also invoked from _Unwind_Resume. 
 

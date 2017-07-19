@@ -340,7 +340,7 @@ TPBIT_FUNCS = _pack_tf _unpack_tf _addsub_tf _mul_tf _div_tf \
 
 # Additional sources to handle exceptions; overridden by targets as needed.
 LIB2ADDEH = $(srcdir)/unwind-dw2.c $(srcdir)/unwind-dw2-fde.c \
-  $(srcdir)/unwind-sjlj.c $(srcdir)/unwind-c.c unwind-shadow-stack.c
+  $(srcdir)/unwind-sjlj.c $(srcdir)/unwind-c.c
 LIB2ADDEHSTATIC = $(LIB2ADDEH)
 LIB2ADDEHSHARED = $(LIB2ADDEH)
 
@@ -355,11 +355,11 @@ SHLIBUNWIND_INSTALL =
 
 # Create links to files specified in config.host.
 LIBGCC_LINKS = enable-execute-stack.c unwind.h md-unwind-support.h \
-               sfp-machine.h gthr-default.h unwind-shadow-stack.c
+               sfp-machine.h gthr-default.h unwind-shadow-stack.h
 
 enable-execute-stack.c: $(srcdir)/$(enable_execute_stack)
 	-$(LN_S) $< $@
-unwind-shadow-stack.c: $(srcdir)/$(unwind_shadow_stack)
+unwind-shadow-stack.h: $(srcdir)/$(unwind_shadow_stack)
 	-$(LN_S) $< $@
 unwind.h: $(srcdir)/$(unwind_header)
 	-$(LN_S) $< $@

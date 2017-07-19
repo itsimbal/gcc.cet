@@ -280,8 +280,6 @@ EXCEPTION_DISPOSITION _GCC_specific_handler (PEXCEPTION_RECORD, void *,
 					     _Unwind_Personality_Fn);
 #endif
 
-extern void __Unwind_shadow_stack (unsigned int);
-
 #ifdef __cplusplus
 }
 #endif

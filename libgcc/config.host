@@ -339,10 +339,10 @@ esac
 
 case ${host} in
 i[34567]86-*-linux* | x86_64-*-linux*)
-  unwind_shadow_stack=config/i386/unwind-shadow-stack-cet.c
+  unwind_shadow_stack=config/i386/unwind-shadow-stack-cet.h
   ;;
 *)
-  unwind_shadow_stack=unwind-shadow-stack-empty.c;
+  unwind_shadow_stack=unwind-shadow-stack-empty.h;
   ;;
 esac
 

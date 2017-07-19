@@ -1652,7 +1652,7 @@ uw_frob_return_addr (struct _Unwind_Context *current
       long offset = uw_install_context_1 ((CURRENT), (TARGET));		\
       void *handler = uw_frob_return_addr ((CURRENT), (TARGET));	\
       _Unwind_DebugHook ((TARGET)->cfa, handler);			\
-      __Unwind_shadow_stack (LEVEL);					\
+      __Unwind_Shadow_Stack (LEVEL);					\
       __builtin_eh_return (offset, handler);				\
     }									\
   while (0)
