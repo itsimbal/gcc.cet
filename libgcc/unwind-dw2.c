@@ -1646,12 +1646,13 @@ uw_frob_return_addr (struct _Unwind_Context *current
    macro because __builtin_eh_return must be invoked in the context of
    our caller.  */
 
-#define uw_install_context(CURRENT, TARGET)				\
+#define uw_install_context(CURRENT, TARGET, LEVEL)			\
   do									\
     {									\
       long offset = uw_install_context_1 ((CURRENT), (TARGET));		\
       void *handler = uw_frob_return_addr ((CURRENT), (TARGET));	\
       _Unwind_DebugHook ((TARGET)->cfa, handler);			\
+      __Unwind_shadow_stack (LEVEL);					\
       __builtin_eh_return (offset, handler);				\
     }									\
   while (0)

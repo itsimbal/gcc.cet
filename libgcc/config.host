@@ -68,6 +68,7 @@
 
 asm_hidden_op=.hidden
 enable_execute_stack=
+unwind_shadow_stack=
 extra_parts=
 tmake_file=
 tm_file=
@@ -333,6 +334,15 @@ i[34567]86-*-mingw* | x86_64-*-mingw*)
   ;;
 *)
   enable_execute_stack=enable-execute-stack-empty.c;
+  ;;
+esac
+
+case ${host} in
+i[34567]86-*-linux* | x86_64-*-linux*)
+  unwind_shadow_stack=config/i386/unwind-shadow-stack-cet.c
+  ;;
+*)
+  unwind_shadow_stack=unwind-shadow-stack-empty.c;
   ;;
 esac
 

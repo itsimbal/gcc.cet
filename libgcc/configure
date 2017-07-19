@@ -557,6 +557,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 md_unwind_header
 unwind_header
+unwind_shadow_stack
 enable_execute_stack
 asm_hidden_op
 extra_parts
@@ -5379,6 +5380,7 @@ fi
 
 
 # Substitute configuration variables
+
 
 
 
