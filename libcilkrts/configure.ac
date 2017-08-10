@@ -42,6 +42,9 @@
 #  We welcome your contributions to this open source project. Thank you
 #  for your assistance in helping us improve Cilk Plus.
 
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
+
 AC_INIT([Cilk Runtime Library], [2.0], [cilk@intel.com])
 AC_PREREQ([2.64])
 
@@ -199,7 +202,7 @@ AC_LINK_IFELSE(
   [#include <pthread.h>
    void *g(void *d) { return NULL; }],
   [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
- [XCFLAGS=" -Wc,-pthread"],
+ [XCFLAGS="-pthread"],
  [CFLAGS="$save_CFLAGS" LIBS="-lpthread $LIBS"
   AC_LINK_IFELSE(
    [AC_LANG_PROGRAM(
@@ -240,6 +243,10 @@ case "${target}" in
     ;;
 
 esac
+
+# Add CET specific flags is Intel CET is enabled.
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
 
 AC_SUBST(XCFLAGS)
 AC_SUBST(XLDFLAGS)
