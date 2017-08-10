@@ -59,6 +59,7 @@ GENERAL_FLAGS += -funwind-tables
 
 AM_CFLAGS = $(XCFLAGS) $(GENERAL_FLAGS) -std=c99
 AM_CPPFLAGS = $(GENERAL_FLAGS)
+AM_CXXFLAGS = $(XCXXFLAGS)
 AM_LDFLAGS = $(XLDFLAGS)
 
 # May be used by toolexeclibdir.

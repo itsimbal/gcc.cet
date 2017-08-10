@@ -162,7 +162,9 @@ DIST_COMMON = $(srcdir)/include/internal/rev.mk README ChangeLog \
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../config/acx.m4 \
+	$(top_srcdir)/../config/cet.m4 \
 	$(top_srcdir)/../config/depstand.m4 \
+	$(top_srcdir)/../config/enable.m4 \
 	$(top_srcdir)/../config/lead-dot.m4 \
 	$(top_srcdir)/../config/multi.m4 \
 	$(top_srcdir)/../config/override.m4 \
@@ -324,6 +326,7 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
 XCFLAGS = @XCFLAGS@
+XCXXFLAGS = @XCXXFLAGS@
 XLDFLAGS = @XLDFLAGS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -405,6 +408,7 @@ GENERAL_FLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/runtime \
 	-funwind-tables
 AM_CFLAGS = $(XCFLAGS) $(GENERAL_FLAGS) -std=c99
 AM_CPPFLAGS = $(GENERAL_FLAGS)
+AM_CXXFLAGS = $(XCXXFLAGS)
 AM_LDFLAGS = $(XLDFLAGS)
 
 # May be used by toolexeclibdir.
