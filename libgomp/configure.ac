@@ -4,6 +4,8 @@
 AC_PREREQ(2.64)
 AC_INIT([GNU Offloading and Multi Processing Runtime Library], 1.0,,[libgomp])
 AC_CONFIG_HEADER(config.h)
+sinclude(../config/cet.m4)
+
 
 # -------
 # Options
@@ -293,6 +295,10 @@ LIBGOMP_CHECK_SYNC_BUILTINS
 
 XCFLAGS="$XCFLAGS$XPCFLAGS"
 
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
+
 AC_SUBST(config_path)
 AC_SUBST(XCFLAGS)
 AC_SUBST(XLDFLAGS)
@@ -318,7 +324,7 @@ else
 fi
 AC_SUBST(link_gomp)
 
-AM_CONDITIONAL([USE_FORTRAN], [test "$ac_cv_fc_compiler_gnu" = yes])
+AM_CONDITIONAL([USE_FORTRAN], [test "$ac_cv_fc_compiler_gnu" = yes && test $enable_cet = no])
 
 # ??? 2006-01-24: Paulo committed to asking autoconf folk to document
 # and export AC_COMPUTE_INT.  If that happens, then we'll need to remove
