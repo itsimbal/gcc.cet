@@ -22,6 +22,9 @@
 #  see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
+
 AC_PREREQ(2.59)
 AC_INIT([GNU Atomic Library], 1.0,,[libatomic])
 AC_CONFIG_HEADER(auto-config.h)
@@ -237,6 +240,10 @@ AC_CACHE_SAVE
 if test "x$GCC" = "xyes"; then
   XCFLAGS="$XCFLAGS -Wall -Werror"
 fi
+
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
 
 XCFLAGS="$XCFLAGS $XPCFLAGS"
 
