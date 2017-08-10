@@ -29,6 +29,9 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
+
 AC_PREREQ(2.64)
 AC_INIT(package-unused, version-unused,, libbacktrace)
 AC_CONFIG_SRCDIR(backtrace.h)
@@ -129,6 +132,12 @@ else
   if test "$libbacktrace_cv_c_random_seed_string" = "yes"; then
     EXTRA_FLAGS="$EXTRA_FLAGS -frandom-seed=\$@"
   fi
+fi
+
+if test -n "${with_target_subdir}"; then
+  # Add CET specific flags is Intel CET is enabled.
+  GCC_CET_FLAGS(CET_FLAGS)
+  EXTRA_FLAGS="$EXTRA_FLAGS $CET_FLAGS"
 fi
 AC_SUBST(EXTRA_FLAGS)
 
