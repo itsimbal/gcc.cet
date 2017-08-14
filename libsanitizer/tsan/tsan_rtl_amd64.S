@@ -2,6 +2,7 @@
 #if defined(__x86_64__)
 
 #include "sanitizer_common/sanitizer_asm.h"
+#include "cet.h"
 
 #if !defined(__APPLE__)
 .section .text
