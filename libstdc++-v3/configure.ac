@@ -5,6 +5,8 @@ AC_INIT(package-unused, version-unused,, libstdc++)
 AC_CONFIG_SRCDIR(src/shared/hashtable-aux.cc)
 AC_CONFIG_HEADER(config.h)
 
+sinclude(../config/cet.m4)
+
 # This works around the fact that libtool configuration may change LD
 # for this particular configuration, but some shells, instead of
 # keeping the changes in LD private, export them just because LD is
@@ -488,6 +490,13 @@ AC_SUBST(ERROR_CONSTANTS_SRCDIR)
 AC_SUBST(CPU_OPT_EXT_RANDOM)
 AC_SUBST(CPU_OPT_BITS_RANDOM)
 
+
+# Add CET specific flags is Intel CET is enabled.
+GCC_CET_FLAGS(CET_FLAGS)
+EXTRA_CXX_FLAGS="$EXTRA_CXX_FLAGS $CET_FLAGS"
+EXTRA_CFLAGS="$EXTRA_CFLAGS $CET_FLAGS"
+AC_SUBST(EXTRA_CFLAGS)
+AC_SUBST(EXTRA_CXX_FLAGS)
 
 # Determine cross-compile flags and AM_CONDITIONALs.
 #AC_SUBST(GLIBCXX_IS_NATIVE)
