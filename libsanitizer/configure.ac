@@ -4,6 +4,8 @@
 AC_PREREQ([2.64])
 AC_INIT(package-unused, version-unused, libsanitizer)
 AC_CONFIG_SRCDIR([include/sanitizer/common_interface_defs.h])
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
 
 AM_ENABLE_MULTILIB(, ..)
 
@@ -379,5 +381,10 @@ AC_SUBST([SANITIZER_COMMON_TARGET_DEPENDENT_OBJECTS])
 
 # Determine what GCC version number to use in filesystem paths.
 GCC_BASE_VER
+
+# Add CET specific flags if Intel CET is enabled.
+GCC_CET_FLAGS(CET_FLAGS)
+EXTRA_FLAGS="$EXTRA_FLAGS $CET_FLAGS"
+AC_SUBST(EXTRA_FLAGS)
 
 AC_OUTPUT
