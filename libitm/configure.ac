@@ -153,7 +153,7 @@ AC_SUBST(enable_static)
 AM_MAINTAINER_MODE
 
 # For libtool versioning info, format is CURRENT:REVISION:AGE
-libtool_VERSION=1:0:0
+libtool_VERSION=2:0:0
 AC_SUBST(libtool_VERSION)
 
 # Check header files.
@@ -182,7 +182,7 @@ AC_LINK_IFELSE(
   [#include <pthread.h>
    void *g(void *d) { return NULL; }],
   [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
- [XPCFLAGS=" -Wc,-pthread"],
+ [XPCFLAGS="-pthread"],
  [CFLAGS="$save_CFLAGS" LIBS="-lpthread $LIBS"
   AC_LINK_IFELSE(
    [AC_LANG_PROGRAM(
@@ -240,6 +240,7 @@ fi
 CFLAGS="$save_CFLAGS $XCFLAGS"
 
 # Check for __sync_val_compare_and_swap, but only after the target has
+
 # had a chance to set XCFLAGS.
 LIBITM_CHECK_SYNC_BUILTINS
 LIBITM_CHECK_64BIT_SYNC_BUILTINS
@@ -259,6 +260,10 @@ if test "x$GCC" = "xyes"; then
 fi
 
 XCFLAGS="$XCFLAGS $XPCFLAGS"
+
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
 
 AC_SUBST(config_path)
 AC_SUBST(XCFLAGS)

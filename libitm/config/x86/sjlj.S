@@ -126,10 +126,22 @@ SYM(_ITM_beginTransaction):
 	/* Store edi for future HTM fast path retries.  We use a stack slot
 	   lower than the jmpbuf so that the jmpbuf's rip field will overlap
 	   with the proper return address on the stack.  */
-	movl	%edi, 8(%rsp)
+	movl	%edi, (%rsp)
 	/* Save the jmpbuf for any non-HTM-fastpath execution method.
 	   Because rsp-based addressing is 1 byte larger and we've got rax
 	   handy, use it.  */
+#if defined(__SHSTK__) && defined(__CET__)
+	movq	%rax, -72(%rax)
+	movq	%rbx, -64(%rax)
+	movq	%rbp, -56(%rax)
+	movq	%r12, -48(%rax)
+	movq	%r13, -40(%rax)
+	movq	%r14, -32(%rax)
+	movq	%r15, -24(%rax)
+	rdsspq	%rdx
+	movq	%rdx, -16(%rax)
+	leaq	-72(%rax), %rsi
+#else
 	movq	%rax, -64(%rax)
 	movq	%rbx, -56(%rax)
 	movq	%rbp, -48(%rax)
@@ -138,8 +150,9 @@ SYM(_ITM_beginTransaction):
 	movq	%r14, -24(%rax)
 	movq	%r15, -16(%rax)
 	leaq	-64(%rax), %rsi
+#endif
 	call	SYM(GTM_begin_transaction)
-	movl	8(%rsp), %edi
+	movl	(%rsp), %edi
 	addq	$72, %rsp
 	cfi_adjust_cfa_offset(-72)
 #ifdef HAVE_AS_RTM
@@ -167,6 +180,10 @@ SYM(_ITM_beginTransaction):
 	movl	%esi, 16(%esp)
 	movl	%edi, 20(%esp)
 	movl	%ebp, 24(%esp)
+#if defined(__SHSTK__) && defined(__CET__)
+	rdsspd	%edx
+	movl	%edx, 28(%esp)
+#endif
 	leal	8(%esp), %edx
 #if defined HAVE_ATTRIBUTE_VISIBILITY || !defined __PIC__
 	call	SYM(GTM_begin_transaction)
@@ -203,10 +220,42 @@ SYM(GTM_longjmp):
 	movq	48(%rsi), %r15
 	movl	%edi, %eax
 	cfi_def_cfa(%rsi, 0)
+#if defined(__SHSTK__) && defined(__CET__)
+	cfi_offset(%rip, 64)
+	cfi_register(%rsp, %rcx)
+	/* Check if Shadow Stack is enabled.  */
+	movq	%rcx, %rsp
+	xorq	%rcx, %rcx
+	rdsspq	%rcx
+	testq	%rcx, %rcx
+	je	.L1
+	/* Calculate # of frames to skip.  */
+	subq	56(%rsi), %rcx
+	negq	%rcx
+	shrq	$3, %rcx
+	incq	%rcx
+	/* If # of frames is greater 255 then loop
+	   and adjust.  */
+	cmpq	$255, %rcx
+	jle	.L3
+	movl	$255, %edi
+	.p2align 4,,10
+	.p2align 3
+.L4:
+	incsspq	%rdi
+	subq	$255, %rcx
+	cmpq	$255, %rcx
+	jg	.L4
+.L3:
+	incsspq	%rcx
+.L1:
+	jmp	*64(%rsi)
+#else
 	cfi_offset(%rip, 56)
 	cfi_register(%rsp, %rcx)
 	movq	%rcx, %rsp
 	jmp	*56(%rsi)
+#endif
 #else
 	movl	(%edx), %ecx
 	movl	4(%edx), %ebx
@@ -214,10 +263,44 @@ SYM(GTM_longjmp):
 	movl	12(%edx), %edi
 	movl	16(%edx), %ebp
 	cfi_def_cfa(%edx, 0)
+#if defined(__SHSTK__) && defined(__CET__)
+	cfi_offset(%eip, 24)
+	cfi_register(%esp, %ecx)
+	/* Check if Shadow Stack is enabled.  */
+	movl	%ecx, %esp
+	xorl	%ecx, %ecx
+	rdsspd	%ecx
+	testl	%ecx, %ecx
+	je	.L1
+	/* Calculate # of frames to skip.  */
+	subl	20(%edx), %ecx
+	negl	%ecx
+	shrl	$2, %ecx
+	incl	%ecx
+	/* If # of frames is greater 255 then loop
+	   and adjust.  */
+	cmpl	$255, %ecx
+	jle	.L3
+	pushl	%eax
+	movl	$255, %eax
+	.p2align 4,,10
+	.p2align 3
+.L4:
+	incsspd	%eax
+	subl	$255, %ecx
+	cmpl	$255, %ecx
+	jg	.L4
+	popl	%eax
+.L3:
+	incsspd	%ecx
+.L1:
+	jmp	*24(%edx)
+#else
 	cfi_offset(%eip, 20)
 	cfi_register(%esp, %ecx)
 	movl	%ecx, %esp
 	jmp	*20(%edx)
+#endif
 #endif
 	cfi_endproc
 
