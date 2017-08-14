@@ -18,6 +18,7 @@
 AC_PREREQ(2.59)
 AC_INIT([GNU TM Runtime Library], 1.0,,[libitm])
 AC_CONFIG_HEADER(config.h)
+sinclude(../config/cet.m4)
 
 # -------
 # Options
@@ -182,7 +183,7 @@ AC_LINK_IFELSE(
   [#include <pthread.h>
    void *g(void *d) { return NULL; }],
   [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
- [XPCFLAGS=" -Wc,-pthread"],
+ [XPCFLAGS="-pthread"],
  [CFLAGS="$save_CFLAGS" LIBS="-lpthread $LIBS"
   AC_LINK_IFELSE(
    [AC_LANG_PROGRAM(
@@ -240,6 +241,7 @@ fi
 CFLAGS="$save_CFLAGS $XCFLAGS"
 
 # Check for __sync_val_compare_and_swap, but only after the target has
+
 # had a chance to set XCFLAGS.
 LIBITM_CHECK_SYNC_BUILTINS
 LIBITM_CHECK_64BIT_SYNC_BUILTINS
@@ -259,6 +261,10 @@ if test "x$GCC" = "xyes"; then
 fi
 
 XCFLAGS="$XCFLAGS $XPCFLAGS"
+
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
 
 AC_SUBST(config_path)
 AC_SUBST(XCFLAGS)

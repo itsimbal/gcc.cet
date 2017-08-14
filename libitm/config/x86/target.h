@@ -31,6 +31,8 @@ namespace GTM HIDDEN {
 /* ??? This doesn't work for Win64.  */
 typedef struct gtm_jmpbuf
 {
+/* Insert Shadow Stack pointer before rip/eip field not to disturb the
+   existing offsets of other fields.  */
   void *cfa;
 #ifdef __x86_64__
   unsigned long long rbx;
@@ -39,12 +41,18 @@ typedef struct gtm_jmpbuf
   unsigned long long r13;
   unsigned long long r14;
   unsigned long long r15;
+#ifdef __SHSTK__
+  unsigned long long ssp;
+#endif
   unsigned long long rip;
 #else
   unsigned long ebx;
   unsigned long esi;
   unsigned long edi;
   unsigned long ebp;
+#ifdef __SHSTK__
+  unsigned long ssp;
+#endif
   unsigned long eip;
 #endif
 } gtm_jmpbuf;
