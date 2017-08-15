@@ -6,6 +6,9 @@ AC_INIT([GNU Vtable Verification Runtime Library], 1.0,,[libvtv])
 #AC_INIT(package-unused, version-unused, libvtv)
 AC_CONFIG_SRCDIR([vtv_rts.h])
 
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
+
 AM_ENABLE_MULTILIB(, ..)
 
 # -------
@@ -151,6 +154,11 @@ libtool_VERSION=1:0:0
 AC_SUBST(libtool_VERSION)
 
 XCFLAGS="-D_GNU_SOURCE -Wall -Wextra -fno-exceptions"
+
+# Add CET specific flags if Intel CET is enabled.
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
+
 AC_SUBST(XCFLAGS)
 
 if test "${multilib}" = "yes"; then
