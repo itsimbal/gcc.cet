@@ -7,6 +7,8 @@ AC_INIT(libssp, 1.0)
 AC_CONFIG_SRCDIR(ssp.c)
 AC_CANONICAL_SYSTEM
 ACX_NONCANONICAL_TARGET
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
 
 AM_INIT_AUTOMAKE([no-dist])
 
@@ -61,6 +63,11 @@ void __attribute__((noinline)) bar (char *x)
 [AC_MSG_RESULT(yes)],
 [AC_MSG_RESULT(no)])
 CFLAGS="$save_CFLAGS"
+
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
+AC_SUBST(XCFLAGS)
 
 AC_MSG_CHECKING([whether hidden visibility is supported])
 AC_TRY_COMPILE([
