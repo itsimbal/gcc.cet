@@ -4,6 +4,8 @@
 AC_PREREQ(2.64)
 AC_INIT([GCC Quad-precision Math Library], 0.1,,[libquadmath])
 AC_CONFIG_HEADER(config.h)
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
 
 # Gets build, host, target, *_vendor, *_cpu, *_os, etc.
 #
@@ -336,6 +338,11 @@ AC_MSG_RESULT($quadmath_use_i18n_number_h)
 if test x$quadmath_use_i18n_number_h = xyes; then
   AC_DEFINE([USE_I18N_NUMBER_H],[1],[whether i18n number rewriting can be supported])
 fi
+
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
+AC_SUBST(XCFLAGS)
 
 AC_CACHE_SAVE
 
