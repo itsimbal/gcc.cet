@@ -62,7 +62,8 @@ am__aclocal_m4_deps = $(top_srcdir)/../config/acx.m4 \
 	$(top_srcdir)/../ltoptions.m4 $(top_srcdir)/../ltsugar.m4 \
 	$(top_srcdir)/../ltversion.m4 $(top_srcdir)/../lt~obsolete.m4 \
 	$(top_srcdir)/acinclude.m4 $(top_srcdir)/../libtool.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/../config/enable.m4 \
+	$(top_srcdir)/../config/cet.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
@@ -99,12 +100,11 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(toolexeclibdir)"
 LTLIBRARIES = $(toolexeclib_LTLIBRARIES)
 libmpx_la_LIBADD =
-@LIBMPX_SUPPORTED_TRUE@am_libmpx_la_OBJECTS = libmpx_la-mpxrt.lo \
-@LIBMPX_SUPPORTED_TRUE@	libmpx_la-mpxrt-utils.lo
+@LIBMPX_SUPPORTED_TRUE@am_libmpx_la_OBJECTS = mpxrt.lo mpxrt-utils.lo
 libmpx_la_OBJECTS = $(am_libmpx_la_OBJECTS)
 libmpx_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmpx_la_CFLAGS) \
-	$(CFLAGS) $(libmpx_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libmpx_la_LDFLAGS) $(LDFLAGS) -o $@
 @LIBMPX_SUPPORTED_TRUE@am_libmpx_la_rpath = -rpath $(toolexeclibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp =
@@ -253,10 +253,11 @@ ACLOCAL_AMFLAGS = -I $(top_srcdir) -I $(top_srcdir)/config
 # May be used by toolexeclibdir.
 @LIBMPX_SUPPORTED_TRUE@gcc_version := $(shell @get_gcc_base_ver@ $(top_srcdir)/../gcc/BASE-VER)
 @LIBMPX_SUPPORTED_TRUE@AM_CPPFLAGS = -I$(top_srcdir)/..
-@LIBMPX_SUPPORTED_TRUE@AM_CFLAGS = $(XCFLAGS)
+@LIBMPX_SUPPORTED_TRUE@AM_CFLAGS = -fPIC $(XCFLAGS)
 @LIBMPX_SUPPORTED_TRUE@toolexeclib_LTLIBRARIES = libmpx.la
 @LIBMPX_SUPPORTED_TRUE@libmpx_la_SOURCES = mpxrt.c mpxrt-utils.c
-@LIBMPX_SUPPORTED_TRUE@libmpx_la_CFLAGS = -fPIC
+
+# libmpx_la_CFLAGS = -fPIC
 @LIBMPX_SUPPORTED_TRUE@libmpx_la_DEPENDENCIES = libmpx.map
 @LIBMPX_SUPPORTED_TRUE@libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx) \
 @LIBMPX_SUPPORTED_TRUE@                    -version-info `grep -v '^\#' $(srcdir)/libtool-version`
@@ -384,12 +385,6 @@ distclean-compile:
 
 .c.lo:
 	$(LTCOMPILE) -c -o $@ $<
-
-libmpx_la-mpxrt.lo: mpxrt.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpx_la_CFLAGS) $(CFLAGS) -c -o libmpx_la-mpxrt.lo `test -f 'mpxrt.c' || echo '$(srcdir)/'`mpxrt.c
-
-libmpx_la-mpxrt-utils.lo: mpxrt-utils.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpx_la_CFLAGS) $(CFLAGS) -c -o libmpx_la-mpxrt-utils.lo `test -f 'mpxrt-utils.c' || echo '$(srcdir)/'`mpxrt-utils.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

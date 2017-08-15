@@ -5,13 +5,13 @@ if LIBMPX_SUPPORTED
 gcc_version := $(shell @get_gcc_base_ver@ $(top_srcdir)/../gcc/BASE-VER)
 
 AM_CPPFLAGS = -I$(top_srcdir)/..
-AM_CFLAGS = $(XCFLAGS)
+AM_CFLAGS = -fPIC
+AM_CFLAGS += $(XCFLAGS)
 
 toolexeclib_LTLIBRARIES = libmpx.la
 
 libmpx_la_SOURCES = mpxrt.c mpxrt-utils.c
 
-libmpx_la_CFLAGS = -fPIC
 libmpx_la_DEPENDENCIES = libmpx.map
 libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx) \
                     -version-info `grep -v '^\#' $(srcdir)/libtool-version`

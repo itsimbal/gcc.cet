@@ -3,6 +3,8 @@
 
 AC_PREREQ([2.64])
 AC_INIT(package-unused, version-unused, libmpx)
+sinclude(../config/enable.m4)
+sinclude(../config/cet.m4)
 
 # -------
 # Options
@@ -117,6 +119,10 @@ AC_SUBST(enable_shared)
 AC_SUBST(enable_static)
 
 XCFLAGS="-Wall -Wextra"
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
+
 AC_SUBST(XCFLAGS)
 
 if test "${multilib}" = "yes"; then
