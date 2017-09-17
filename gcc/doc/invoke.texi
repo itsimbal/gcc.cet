@@ -460,6 +460,7 @@ Objective-C and Objective-C++ Dialects}.
 -fchkp-check-read  -fchkp-check-write  -fchkp-store-bounds @gol
 -fchkp-instrument-calls  -fchkp-instrument-marked-only @gol
 -fchkp-use-wrappers  -fchkp-flexible-struct-trailing-arrays@gol
+-fcf-protection=@r{[}@var{full}|@var{branch}|@var{return}|@var{none}@r{]} @gol
 -fstack-protector  -fstack-protector-all  -fstack-protector-strong @gol
 -fstack-protector-explicit  -fstack-check @gol
 -fstack-limit-register=@var{reg}  -fstack-limit-symbol=@var{sym} @gol
@@ -11347,6 +11348,35 @@ with calls to wrapper functions.  When @option{-fchkp-use-wrappers}
 is used to link a program, the GCC driver automatically links
 against @file{libmpxwrappers}.  See also @option{-static-libmpxwrappers}.
 Enabled by default.
+
+@item -fcf-protection=@r{[}@var{full}|@var{branch}|@var{return}|@var{none}@r{]}
+@opindex fcf-protection
+Enable code instrumentation of control-flow transfers to increase
+a program security by checking a target address of control-flow
+transfer instructions (such as indirect function call, function return,
+indirect jump) are valid targets.  This prevents diverting the control
+flow instructions from its original target address to a new undesigned
+target.  This is intended to protect against such theats as
+Return-oriented Programming (ROP), and similarly call/jmp-oriented
+programming (COP/JOP).
+
+Each compiler, which will support the control-flow instrumentation,
+is supposed to have its own target specific implementation of the
+control-flow instrumentation and in case of absence of such
+implementation the usage of @option{-fcf-protection} will
+cause an error message.
+
+The value @var{branch} tells the compiler to implement checking of
+validness of control-flow trasfer for at the point of indirect branch
+instructions, i.e. call/jmp instructions.  The value @var{return}
+implements checking of validness at the point of returning from a
+function.  The value @var{full} is an alias for specifying both
+'branch' and 'return'. The value @var{none} turns off instrumentation.
+This value may be used for those architectures where @option{-fcf-protection}
+is switched on by default.
+
+A user also has a control through the @code{nocf_check} attribute to identify
+which functions and calls should be skipped from instrumentation.
 
 @item -fstack-protector
 @opindex fstack-protector
