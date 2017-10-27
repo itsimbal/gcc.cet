@@ -260,6 +260,15 @@ fi
 
 XCFLAGS="$XCFLAGS $XPCFLAGS"
 
+# Add CET specific flags if CET is enabled
+GCC_CET_FLAGS(CET_FLAGS)
+XCFLAGS="$XCFLAGS $CET_FLAGS"
+if test "x$enable_cet_compatibility" = "xyes"; then
+  # Also update libtool_VERSION since the size of struct gtm_jmpbuf is
+  # chaned.
+  libtool_VERSION=2:0:0
+fi
+
 AC_SUBST(config_path)
 AC_SUBST(XCFLAGS)
 AC_SUBST(XLDFLAGS)
