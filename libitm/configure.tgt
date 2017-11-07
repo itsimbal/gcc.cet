@@ -149,3 +149,15 @@ case "${target}" in
 	UNSUPPORTED=1
 	;;
 esac
+
+# Update libtool_VERSION since the size of struct gtm_jmpbuf is
+# changed for x86.
+case "${host}" in
+
+  # For x86, we use slots in the TCB head for most of our TLS.
+  # The setup of those slots in beginTransaction can afford to
+  # use the global-dynamic model.
+  i[456]86-*-* | x86_64-*-*)
+	libtool_VERSION=2:0:0
+	;;
+esac
