@@ -21729,24 +21729,30 @@ void __builtin_ia32_wrpkru (unsigned int)
 unsigned int __builtin_ia32_rdpkru ()
 @end smallexample
 
-The following built-in functions are available when @option{-mcet} is used.
+The following built-in functions are available when @option{-mcet},
+or @option{-mshstk} option is used.
 They are used to support Intel Control-flow Enforcment Technology (CET).
 Each built-in function generates the  machine instruction that is part of the
 function's name.
 @smallexample
-unsigned int __builtin_ia32_rdsspd (unsigned int)
-unsigned long long __builtin_ia32_rdsspq (unsigned long long)
+unsigned int __builtin_ia32_rdsspd (void)
+unsigned long long __builtin_ia32_rdsspq (void)
 void __builtin_ia32_incsspd (unsigned int)
 void __builtin_ia32_incsspq (unsigned long long)
-void __builtin_ia32_saveprevssp(void);
-void __builtin_ia32_rstorssp(void *);
-void __builtin_ia32_wrssd(unsigned int, void *);
-void __builtin_ia32_wrssq(unsigned long long, void *);
-void __builtin_ia32_wrussd(unsigned int, void *);
-void __builtin_ia32_wrussq(unsigned long long, void *);
-void __builtin_ia32_setssbsy(void);
-void __builtin_ia32_clrssbsy(void *);
+void __builtin_ia32_saveprevssp (void);
+void __builtin_ia32_rstorssp (void *);
+void __builtin_ia32_wrssd (unsigned int, void *);
+void __builtin_ia32_wrssq (unsigned long long, void *);
+void __builtin_ia32_wrussd (unsigned int, void *);
+void __builtin_ia32_wrussq (unsigned long long, void *);
+void __builtin_ia32_setssbsy (void);
+void __builtin_ia32_clrssbsy (void *);
 @end smallexample
+
+There is also __built-in function @code{__builtin__ia32_getssp (void)}
+that is unlike to @code{__builtin__ia32_rdssp (void)} built-in function
+returns the value @code{0} when the underlying HW does not support
+Intel Control-flow Enforcment Technology (CET).
 
 @node x86 transactional memory intrinsics
 @subsection x86 Transactional Memory Intrinsics

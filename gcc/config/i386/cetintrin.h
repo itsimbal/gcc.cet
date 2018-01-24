@@ -36,19 +36,30 @@
 
 extern __inline unsigned int
 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_rdsspd (unsigned int __B)
+_rdsspd (void)
 {
-  return __builtin_ia32_rdsspd (__B);
+  return __builtin_ia32_rdsspd ();
 }
 
 #ifdef __x86_64__
 extern __inline unsigned long long
 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_rdsspq (unsigned long long __B)
+_rdsspq (void)
 {
-  return __builtin_ia32_rdsspq (__B);
+  return __builtin_ia32_rdsspq ();
 }
 #endif
+
+extern __inline void *
+__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+_get_ssp (void)
+{
+#ifdef __x86_64__
+  return __builtin_ia32_getsspq ();
+#else
+  return __builtin_ia32_getsspd ();
+#endif
+}
 
 extern __inline void
 __attribute__((__gnu_inline__, __always_inline__, __artificial__))

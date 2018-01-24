@@ -8,8 +8,7 @@
 
 unsigned int f1 ()
 {
-  unsigned int x = 0;
-  return _rdsspd (x);
+  return _rdsspd ();
 }
 
 void f3 (unsigned int _a)
@@ -20,8 +19,7 @@ void f3 (unsigned int _a)
 #ifdef __x86_64__
 unsigned long long f2 ()
 {
-  unsigned long long x = 0;
-  return _rdsspq (x);
+  return _rdsspq ();
 }
 
 void f4 (unsigned int _a)
